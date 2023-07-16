@@ -1,0 +1,31 @@
+using x, y of type integer; r, c, s, t of type canvas begin
+  x := 10 ;
+  y := 15  ;
+  c := <empty> ;
+  {- This is a comment -}
+  from 10 % 2 to x repeat
+    using d of type canvas begin
+      d := <empty> ;
+      {- This  -
+        -- is a multi-line {-
+        comment -}
+      with j from 1 to y repeat
+        using k of type integer begin
+          if j < 0 then
+            d := d : </>
+          otherwise
+            d := d : <\>
+          done
+        end
+      done ;
+      c := c | d
+    end;
+    using d of type integer begin
+      d := 1;
+    end
+  done ;
+  using d of type integer begin
+    d := 1;
+  end;
+  print c
+end

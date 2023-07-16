@@ -1,0 +1,5 @@
+#!/bin/bash
+
+rm -f *.class
+rm Lexico.java sym.java parser.java
+

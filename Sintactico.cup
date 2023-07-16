@@ -1,0 +1,481 @@
+// importar cup
+import java_cup.runtime.*;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Comparator;
+
+
+parser code
+{:
+    
+    /* Priority Queue para los errores de contexto */
+    public PriorityQueue<Pair> errors_queue = new PriorityQueue<>(Comparator.comparingInt(Pair::getFila));
+
+    /* Tabla de Simbolos del programa Asgard */
+    public SymbolTable tablaActual;
+    /**
+     * Método al que se llama automáticamente ante algún error sintactico.
+     * Se imprime solamente el primer error.
+     **/
+    public void syntax_error(Symbol s){ 
+        System.out.println("Error sintáctico en la línea " + (s.left) +
+        ", columna "+ s.right + ".");
+        System.exit(1);
+    }
+
+    /* Metodo al que se llama automaticamente ante algun error de contexto
+    Se guarda en una cola estos errores
+    */
+    public void context_error(int sleft, int sright, String mensaje){
+        String error = "Error de contexto en la línea " + (sleft) +
+        ", columna "+ sright + ". " + mensaje + ".";
+        errors_queue.add(new Pair(sleft, error));
+    }
+
+    /**
+     * Método al que se llama automáticamente ante algún error sintáctico 
+     * en el que ya no es posible una recuperación de errores. 
+     * NOTA: No se realiza ninguna acción.
+     **/ 
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{  
+    }
+
+    
+    
+:}
+
+/* Terminales (tokens retornados por el analizador lexico ) */
+terminal TkComa, TkPuntoYComa, TkParAbre, TkParCierra;
+terminal TkMas, TkMenos, TkMult, TkDiv, TkMod;
+terminal TkConjuncion, TkDisyuncion, TkNegacion;
+terminal TkMenor, TkMenorIgual, TkMayor, TkMayorIgual, TkIgual, TkDesigual;
+terminal TkConcatHorizontal, TkConcatVertical, TkRotacion, TkTrasposicion, TkAsignacion;
+terminal TkNumLit, TkCanvasLit;
+terminal TkUsing, TkOfType;
+terminal TkBegin, TkEnd;
+terminal TkInteger, TkBoolean, TkCanvas;
+terminal TkIf, TkThen, TkOtherwise, TkWhile, TkTo, TkFrom, TkDone, TkRepeat, TkWith;
+terminal TkRead, TkPrint;
+terminal TkTrue, TkFalse;
+terminal TkIdent;
+
+/* No terminales */
+non terminal secuenciacion;
+non terminal tipo;
+non terminal expresion;
+non terminal instruccion;
+non terminal decIdentificadores;
+non terminal Condicional;
+non terminal IteracionIndet;
+non terminal IteracionDet;
+non terminal asignVariables;
+non terminal Lectura;
+non terminal Escritura;
+non terminal bloque;
+non terminal nuevoInteger;
+non terminal listaIdentificadores;
+non terminal alcance;
+non terminal abrirAlcance;
+non terminal cerrarAlcance;
+non terminal programa;
+non terminal iniciarAlcance;
+
+/* Precedencias */
+precedence right TkAsignacion;
+precedence left TkDisyuncion;
+precedence left TkConjuncion;
+precedence left TkNegacion;
+precedence left	TkIgual, TkDesigual;
+precedence left TkMenor, TkMayor, TkMenorIgual, TkMayorIgual;
+precedence left TkMas, TkMenos;
+precedence left TkMult, TkDiv, TkMod;
+precedence left TkComa, TkPuntoYComa;
+precedence left TkParAbre, TkParCierra;
+precedence left TkConcatHorizontal, TkConcatVertical;
+precedence left TkRotacion;
+precedence left TkTrasposicion;
+precedence left TkAsignacion;
+precedence nonassoc TkIf, TkOtherwise, TkWhile, TkDone, TkRepeat, TkWith, TkFrom, TkTo, TkThen, TkRead, TkPrint;
+
+
+start with programa;
+
+/* Reglas de producción */
+
+programa ::= iniciarAlcance alcance:a{:/*Inicializar el arbol sintactico abstracto*/
+                                       ASTNode program = new DefaultNode((ASTNode) a); 
+                                       /* Si la cola de errores de contexto esta vacia, se imprime el arbol*/
+                                       if (errors_queue.isEmpty()) { 
+                                                program.printParseTree(0, false);
+                                       } else  {
+                                                /* en caso contrario, se imprime la cola de errores*/
+                                                System.out.println("Se encontraron los siguientes errores de contexto: \n");
+                                               while (!errors_queue.isEmpty()) {
+                                                        Pair x = errors_queue.poll();
+                                                        System.out.println(x.getMsg());
+                                                } 
+                                       }:};
+
+alcance ::= TkUsing abrirAlcance decIdentificadores TkBegin bloque:a TkEnd cerrarAlcance {:
+                        RESULT = errors_queue.isEmpty() ? new DefaultNode((ASTNode) a) : new Undefined(); :}
+        | TkBegin bloque:a TkEnd {: RESULT = errors_queue.isEmpty() ? new DefaultNode((ASTNode) a) : new Undefined(); :};
+
+bloque ::= secuenciacion:a {:RESULT = errors_queue.isEmpty() ? new Secuenciacion((Instruccion) a) : new Undefined(); :};
+
+secuenciacion ::= instruccion:a {: RESULT = errors_queue.isEmpty() ? new Instruccion((ASTNode) a) : new Undefined();:}
+        | secuenciacion:a TkPuntoYComa instruccion:b {:
+        RESULT = errors_queue.isEmpty() ?  new Instruccion((ASTNode) a, (ASTNode) b) : new Undefined(); :};
+
+instruccion ::=
+        | alcance:a {:RESULT = errors_queue.isEmpty() ? (ASTNode) a : new Undefined(); :}
+        | IteracionDet:a {:RESULT = errors_queue.isEmpty() ? (IteracionDet) a : new Undefined(); :}
+        | IteracionIndet:a {:RESULT = errors_queue.isEmpty() ? (IteracionIndet) a : new Undefined(); :}
+        | Condicional:a {:RESULT = errors_queue.isEmpty() ? (Condicional) a : new Undefined(); :}
+        | asignVariables:a {:RESULT = errors_queue.isEmpty() ? (Asignacion) a : new Undefined(); :}
+        | Lectura:a {:RESULT = errors_queue.isEmpty() ? (Read) a : new Undefined(); :}
+        | Escritura:a {:RESULT = errors_queue.isEmpty() ? (Print) a : new Undefined(); :};
+
+asignVariables ::= TkIdent:a TkAsignacion expresion:b {:
+                Identificador ident = tablaActual.get(a.toString());
+                if(ident != null){
+                        /* verificar que la variable que se esta modificando no sea una variable asociada a una repeticion determinada */
+                        if (ident.getFlag()) {
+                                context_error(aleft, aright, "No se puede modificar el valor de una variable asociada a una repeticion determinada");
+                                RESULT = new Undefined();
+                        } else {
+                                /* verificar si coincide el tipo de dato de expresion de b con el tipo de identificador de a */
+                                if(ident.getTipo() == ((Expression) b).getTipo()){
+                                        RESULT = new Asignacion(ident, (Expression) b);
+                                } else {
+                                        context_error(aleft, aright, "El tipo de la expresión no coincide con el tipo del identificador");
+                                        RESULT = new Asignacion(ident, new Undefined());
+                                }
+                        }
+                } else {
+                   context_error(aleft, aright, "El identificador " + a.toString() + " no ha sido declarado");
+                   RESULT = new Undefined();
+                }:};
+
+IteracionIndet ::= TkWhile expresion:a TkRepeat bloque:b TkDone {:
+                RESULT = errors_queue.isEmpty() ? new IteracionIndet((Expression) a, (ASTNode) b) : new Undefined(); :};
+
+IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat bloque:c TkDone {:
+                /* verificar que los limites sean expresiones aritmeticas */
+                Expression exp1 = (Expression) a;
+                Expression exp2 = (Expression) b;
+
+                if (exp1.getTipo() == "undefined" || exp2.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con los limites de la iteración determinada");  
+                        RESULT = new Undefined();
+                } 
+                else if (exp1.getTipo() == "integer") {
+                        if (exp2.getTipo() == "integer") {
+                                RESULT = new IteracionDet(exp1, exp2, (ASTNode) c);
+                        } else {
+                                context_error(aleft, aright, "El limite superior no es una expresión aritmética");  
+                                RESULT = new Undefined();
+                        }
+                } else {
+                        context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
+                        RESULT = new Undefined(); 
+                }:}
+        | TkWith abrirAlcance nuevoInteger:a expresion:b TkTo expresion:c TkRepeat bloque:d TkDone cerrarAlcance {:
+                        /* verificar que los limites sean expresiones aritmeticas */
+                        Identificador ident = (Identificador) a;
+                        Expression exp1 = (Expression) b;
+                        Expression exp2 = (Expression) c;
+                        if (exp1.getTipo() == "undefined" || exp2.getTipo() == "undefined") {
+                                context_error(aleft, aright, "Hubo un error con los limites de la iteración determinada");  
+                                RESULT = new Undefined();
+                        } 
+                        else if (exp1.getTipo() == "integer") {
+                                if (exp2.getTipo() == "integer") {
+                                        RESULT = new IteracionDet(ident, exp1, exp2,  (ASTNode) d);
+                                } else {
+                                        context_error(aleft, aright, "El limite superior no es una expresión aritmética");  
+                                        RESULT = new Undefined();
+                                }
+                        } else {
+                                context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
+                                RESULT = new Undefined();
+                        }:};
+
+Condicional ::= TkIf expresion:a TkThen bloque:b TkDone {:
+                /* verificar que la guardia sea una expresión booleana */
+                Expression exp = (Expression) a;
+                if (exp.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
+                        RESULT = new Undefined(); 
+                }
+                else if (exp.getTipo() == "boolean") {
+                        RESULT = new Condicional((Expression) a, (ASTNode) b);
+                } else {
+                        context_error(aleft, aright, "La guardia no es una expresión booleana"); 
+                        RESULT = new Undefined(); 
+                }:} 
+        | TkIf expresion:a TkThen bloque:b TkOtherwise bloque:c TkDone {:
+                /* verificar que la guardia sea una expresión booleana */
+                Expression exp = (Expression) a;
+                if (exp.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
+                        RESULT = new Undefined(); 
+                }
+                else if (exp.getTipo() == "boolean") {
+                        RESULT = new Condicional(exp, (ASTNode) b, (ASTNode) c); 
+                } else {
+                        context_error(aleft, aright, "La guardia no es una expresión booleana");
+                        RESULT = new Undefined(); 
+                }:} ;
+
+Escritura ::= TkPrint expresion:a {:
+                Expression exp = (Expression) a;
+                if (exp.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con la expresión que se va a imprimir"); 
+                        RESULT = new Undefined(); 
+                }
+                else {RESULT = new Print((Expression) a);}:};
+
+Lectura ::= TkRead TkIdent:a {:
+                        Identificador ident = tablaActual.get(a.toString());
+                        if(ident != null){
+                                /* solamente se puede leer identificadores de tipo entero o booleano */
+                                if (ident.getTipo() == "integer" || ident.getTipo() == "boolean") {
+                                        RESULT = new Read(ident);
+                                } else {
+                                        context_error(aleft, aright, "No se puede leer el identificador, ya que " + a.toString() + " no es un entero o un booleano"); 
+                                        RESULT = new Undefined();
+                                }
+                        } else {
+                                context_error(aleft, aright, "El identificador " + a.toString() + " no ha sido declarado");
+                                RESULT = new Undefined();
+                        }:};
+
+expresion ::= TkIdent:a {: Identificador ident = tablaActual.get(a.toString());
+                           if(ident != null){
+                                RESULT = ident;
+                           } else {
+                                context_error(aleft, aright, "El identificador " + a.toString() + " no ha sido declarado");
+                                RESULT = new Undefined();
+                           }
+                        :}
+        | TkNumLit:a {:RESULT = new Literal(a.toString(), "integer");:}
+        | TkMenos expresion:a {: 
+                        Expression exp = (Expression) a;
+                        if (exp.getTipo() == "integer") {
+                                RESULT = new ExpresionAritmeticaUna("Menos Unario", exp);
+                        } else {
+                                context_error(aleft, aright, "Operación aritmética inválida");  
+                                RESULT = new Undefined();
+                        }
+                        :} %prec TkComa
+        | expresion:a TkMas expresion:b {:
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionAritmeticaBin("Suma",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación aritmética inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkMenos expresion:b {:
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionAritmeticaBin("Resta",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación aritmética inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkMult expresion:b {:
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionAritmeticaBin("Multiplicacion",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación aritmética inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkDiv expresion:b {: 
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionAritmeticaBin("Division",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación aritmética inválida"); 
+                                RESULT = new Undefined();
+                        }:} 
+        | expresion:a TkMod expresion:b {:
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionAritmeticaBin("Modulo",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación aritmética inválida"); 
+                                RESULT = new Undefined();
+                        }:}  
+        | TkParAbre expresion:a TkParCierra {: RESULT = (Expression) a;:}
+        | expresion:a TkNegacion {:  
+                        Expression exp = (Expression) a;
+                        if (exp.getTipo() == "boolean") {
+                                RESULT =new ExpresionBooleanaUna("Negacion", (Expression) a); 
+                        } else {
+                                context_error(aleft, aright, "Operación booleana inválida");  
+                                RESULT = new Undefined();
+                        }
+                        :} 
+        | TkFalse  {: RESULT = new Literal("false", "boolean");:}
+        | TkTrue {: RESULT = new Literal("true", "boolean");:}
+        | expresion:a TkConjuncion expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "boolean" && exp2.getTipo() == "boolean") {
+                                RESULT = new ExpresionBooleanaBin("Conjuncion", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación booleana inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkDisyuncion expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "boolean" && exp2.getTipo() == "boolean") {
+                                RESULT = new ExpresionBooleanaBin("Disyuncion", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación booleana inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkIgual expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if ((exp1.getTipo() == "boolean" && exp2.getTipo() == "boolean") 
+                        || (exp1.getTipo() == "integer" && exp2.getTipo() == "integer")
+                        || (exp1.getTipo() == "canvas" && exp2.getTipo() == "canvas") ) {
+                                RESULT = new ExpresionRelacional("Igual", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación de igualdad inválida"); 
+                                RESULT = new Undefined();
+                        }:} 
+        | expresion:a TkDesigual expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if ((exp1.getTipo() == "boolean" && exp2.getTipo() == "boolean") 
+                        || (exp1.getTipo() == "integer" && exp2.getTipo() == "integer")
+                        || (exp1.getTipo() == "canvas" && exp2.getTipo() == "canvas") ) {
+                                RESULT = new ExpresionRelacional("Desigual", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación de desigualdad inválida"); 
+                                RESULT = new Undefined();
+                        }:} 
+        | expresion:a TkMenor expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                               RESULT = new ExpresionRelacional("Menor", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación relacional inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkMenorIgual expresion:b  {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionRelacional("Menor o igual", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación relacional inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkMayor expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionRelacional("Mayor", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación relacional inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkMayorIgual expresion:b {:  
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "integer" && exp2.getTipo() == "integer") {
+                                RESULT = new ExpresionRelacional("Mayor o igual", (Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación relacional inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | TkCanvasLit:a {:  RESULT = new Literal(a.toString(), "canvas");:}
+        | expresion:a TkTrasposicion {:  
+                        Expression exp = (Expression) a;
+                        if (exp.getTipo() == "canvas") {
+                                RESULT =new ExpresionCanvasUna("Trasposicion", (Expression) a);
+                        } else {
+                                context_error(aleft, aright, "Operación de canvas inválida");  
+                                RESULT = new Undefined();
+                        }:}
+        | TkRotacion expresion:a {:  
+                        Expression exp = (Expression) a;
+                        if (exp.getTipo() == "canvas") {
+                                RESULT =new ExpresionCanvasUna("Rotacion", (Expression) a);
+                        } else {
+                                context_error(aleft, aright, "Operación de canvas inválida");  
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkConcatHorizontal expresion:b {:
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "canvas" && exp2.getTipo() == "canvas") {
+                                RESULT = new ExpresionCanvasBin("Concatenacion Horizontal",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación de canvas inválida"); 
+                                RESULT = new Undefined();
+                        }:}
+        | expresion:a TkConcatVertical expresion:b {:
+                        Expression exp1 = (Expression) a;
+                        Expression exp2 = (Expression) b;
+                        if (exp1.getTipo() == "canvas" && exp2.getTipo() == "canvas") {
+                                RESULT = new ExpresionCanvasBin("Concatenacion Vertical",(Expression) a, (Expression) b);
+                        } else {
+                                context_error(aleft, aright, "Operación de canvas inválida"); 
+                                RESULT = new Undefined();
+                        }:};
+
+decIdentificadores ::= decIdentificadores TkPuntoYComa listaIdentificadores TkOfType tipo:a {:tablaActual.setType(a.toString());:}
+                        | listaIdentificadores TkOfType tipo:a  {:tablaActual.setType(a.toString());:};
+
+listaIdentificadores ::= listaIdentificadores TkComa TkIdent:a {:
+                                /*chequear si el identificador esta siendo redeclarado en el mismo alcance */
+                                if(!tablaActual.contains(a.toString())) {
+                                        Identificador ident = new Identificador(a.toString());
+                                        tablaActual.put(a.toString(), ident);
+                                }
+                                else {
+                                        context_error(aleft, aright, "El identificador " + a.toString() + " ya fue declarado");
+                                        RESULT = new Undefined();
+                                }:}
+                       | TkIdent:a {: /*chequear si el identificador esta siendo redeclarado en el mismo alcance */
+                                if(!tablaActual.contains(a.toString())) {
+                                        Identificador ident = new Identificador(a.toString());
+                                        tablaActual.put(a.toString(), ident);
+                                }
+                                else {
+                                        context_error(aleft, aright, "El identificador " + a.toString() + " ya fue declarado");
+                                        RESULT = new Undefined(); 
+                                }:};
+
+tipo ::= TkBoolean {:RESULT = "boolean";:}
+        | TkInteger {:RESULT = "integer";:}
+        | TkCanvas {:RESULT = "canvas";:};
+
+nuevoInteger ::= TkIdent:a TkFrom  {: 
+                                 /*chequear que el identificador no este siendo redeclarado el la misma alcance */
+                                 if(!tablaActual.contains(a.toString())) {
+                                        Identificador ident = new Identificador(a.toString(), true);
+                                        ident.setTipo("integer");
+                                        tablaActual.put(a.toString(), ident);
+                                         RESULT = ident;
+                                 } else {
+                                        context_error(aleft, aright, "El identificador " + a.toString() + " ya fue declarado");
+                                        RESULT = new Undefined();
+                                 }:};
+
+abrirAlcance ::=  {:tablaActual = new SymbolTable(tablaActual); :};
+cerrarAlcance ::= {:tablaActual = tablaActual.parent;:};
+iniciarAlcance ::= {:tablaActual = new SymbolTable(null);:};

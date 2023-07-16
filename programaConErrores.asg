@@ -1,0 +1,37 @@
+using x, y of type integer; r, c, s, t of type canvas; a, b of type boolean begin
+  c := <empty> | 10 ;
+  x := 15;
+  a := true \/ (1 < x);
+  {- This is a comment -}
+  from x to 10 repeat
+    using d of type canvas begin
+      d := <empty> ;
+      {- This  -
+        -- is a multi-line {-
+        comment -}
+      with j from 1 to y repeat
+        using t of type integer begin
+          if j < 0 then
+            t := <empty>;
+            d := d : </>
+          otherwise
+            d := d + <\>;
+            t := 10
+          done
+        end
+      done ;
+      t := 10;
+      t := <empty>;
+      c := c | d; 
+      x := x /\ c
+    end;
+    using d of type integer begin
+      d := 1;
+    end
+  done ;
+  using s of type integer begin
+    d := 1;
+  end;
+  print c;
+  read c
+end
