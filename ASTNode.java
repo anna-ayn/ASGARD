@@ -189,15 +189,21 @@ class ExpresionBooleanaUna extends OperacionUnaria {
 class ExpresionRelacional extends OperacionBinaria {
     public ExpresionRelacional(String operador, Expression left, Expression right) {
         super(operador, left, right);
-        if (!Objects.equals(operador, "igual") && !Objects.equals(operador, "desigual")) {
-            this.tipo = (Objects.equals(left.getTipo(), "integer") && Objects.equals(right.getTipo(), "integer"))
-                    ? new Tipo("boolean")
-                    : new ErrorType("Error de tipos");
-        } else {
-            this.tipo = (Objects.equals(left.getTipo(), right.getTipo()) && !Objects.equals(left.getTipo(), "error"))
-                    ? new Tipo("boolean")
-                    : new ErrorType("Error de tipos");
-        }
+        this.tipo = new Tipo("boolean");
+        /*
+         * if (!Objects.equals(operador, "igual") && !Objects.equals(operador,
+         * "desigual")) {
+         * this.tipo = (Objects.equals(left.getTipo(), "integer") &&
+         * Objects.equals(right.getTipo(), "integer"))
+         * ? new Tipo("boolean")
+         * : new ErrorType("Error de tipos");
+         * } else {
+         * this.tipo = (Objects.equals(left.getTipo(), right.getTipo()) &&
+         * !Objects.equals(left.getTipo(), "error"))
+         * ? new Tipo("boolean")
+         * : new ErrorType("Error de tipos");
+         * }
+         */
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -261,9 +267,11 @@ class Instruccion extends ASTNode {
     }
 
     public void printParseTree(int depth, boolean sub) {
-        instruccion.printParseTree(depth, sub);
-        if (next != null) {
-            next.printParseTree(depth, sub);
+        if (instruccion != null) {
+            instruccion.printParseTree(depth, sub);
+            if (next != null) {
+                next.printParseTree(depth, sub);
+            }
         }
     }
 }
@@ -308,6 +316,12 @@ class Condicional extends ASTNode {
     private ASTNode ifBody;
     private ASTNode elseBody;
 
+    public Condicional(Expression guardia) {
+        this.guardia = guardia;
+        this.ifBody = null;
+        this.elseBody = null;
+    }
+
     public Condicional(Expression guardia, ASTNode ifBody) {
         this.guardia = guardia;
         this.ifBody = ifBody;
@@ -325,7 +339,11 @@ class Condicional extends ASTNode {
         System.out.print(StringUtils.stringTab("- guardia: ", depth + 1, false));
         guardia.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- exito: ", depth + 1, false));
-        ifBody.printParseTree(depth + 2, true);
+        if (ifBody != null) {
+            ifBody.printParseTree(depth + 2, true);
+        } else {
+            System.out.println("INSTRUCCION VACIA");
+        }
         if (elseBody != null) {
             System.out.print(StringUtils.stringTab("- fallo: ", depth + 1, false));
             elseBody.printParseTree(depth + 2, true);

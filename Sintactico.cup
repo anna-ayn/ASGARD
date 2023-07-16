@@ -201,7 +201,20 @@ IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat bloque:c TkDone {:
                                 RESULT = new Undefined();
                         }:};
 
-Condicional ::= TkIf expresion:a TkThen bloque:b TkDone {:
+Condicional ::= TkIf expresion:a TkThen TkDone {:
+                /* verificar que la guardia sea una expresión booleana */
+                Expression exp = (Expression) a;
+                if (exp.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
+                        RESULT = new Undefined(); 
+                }
+                else if (exp.getTipo() == "boolean") {
+                        RESULT = new Condicional((Expression) a);
+                } else {
+                        context_error(aleft, aright, "La guardia no es una expresión booleana"); 
+                        RESULT = new Undefined(); 
+                }:} 
+        | TkIf expresion:a TkThen bloque:b TkDone {:
                 /* verificar que la guardia sea una expresión booleana */
                 Expression exp = (Expression) a;
                 if (exp.getTipo() == "undefined") {
@@ -214,6 +227,32 @@ Condicional ::= TkIf expresion:a TkThen bloque:b TkDone {:
                         context_error(aleft, aright, "La guardia no es una expresión booleana"); 
                         RESULT = new Undefined(); 
                 }:} 
+        | TkIf expresion:a TkThen TkOtherwise bloque:c TkDone {:
+                /* verificar que la guardia sea una expresión booleana */
+                Expression exp = (Expression) a;
+                if (exp.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
+                        RESULT = new Undefined(); 
+                }
+                else if (exp.getTipo() == "boolean") {
+                        RESULT = new Condicional(exp, null, (ASTNode) c); 
+                } else {
+                        context_error(aleft, aright, "La guardia no es una expresión booleana");
+                        RESULT = new Undefined(); 
+                }:} 
+        | TkIf expresion:a TkThen TkOtherwise TkDone {:
+                /* verificar que la guardia sea una expresión booleana */
+                Expression exp = (Expression) a;
+                if (exp.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
+                        RESULT = new Undefined(); 
+                }
+                else if (exp.getTipo() == "boolean") {
+                        RESULT = new Condicional(exp); 
+                } else {
+                        context_error(aleft, aright, "La guardia no es una expresión booleana");
+                        RESULT = new Undefined(); 
+                }:}  
         | TkIf expresion:a TkThen bloque:b TkOtherwise bloque:c TkDone {:
                 /* verificar que la guardia sea una expresión booleana */
                 Expression exp = (Expression) a;
