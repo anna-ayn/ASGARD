@@ -105,9 +105,9 @@ start with programa;
 
 programa ::= iniciarAlcance alcance:a{:/*Inicializar el arbol sintactico abstracto*/
                                        ASTNode program = new DefaultNode((ASTNode) a); 
-                                       /* Si la cola de errores de contexto esta vacia, se imprime el arbol*/
+                                       /* Si la cola de errores de contexto esta vacia, se corre el programa*/
                                        if (errors_queue.isEmpty()) { 
-                                                program.printParseTree(0, false);
+                                                program.Interpretar();
                                        } else  {
                                                 /* en caso contrario, se imprime la cola de errores*/
                                                 System.out.println("Se encontraron los siguientes errores de contexto: \n");

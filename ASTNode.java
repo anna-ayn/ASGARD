@@ -1,4 +1,6 @@
 import java.util.Objects;
+import java.io.*;
+import java.util.Scanner;
 
 abstract class ASTNode {
     private ASTNode child;
@@ -9,6 +11,12 @@ abstract class ASTNode {
 
     public void setChild(ASTNode child) {
         this.child = child;
+    }
+
+    protected void Interpretar() {
+        if (this.getChild() != null) {
+            this.getChild().Interpretar();
+        }
     }
 
     protected void printParseTree(int depth, boolean sub) {
@@ -35,15 +43,25 @@ class DefaultNode extends ASTNode {
 }
 
 class Expression extends ASTNode {
+    protected String valor;
     protected Tipo tipo;
 
     public String getTipo() {
         return tipo.getTipo();
     }
 
+    public String getValor() {
+        return this.valor;
+    }
+
     public void setTipo(String tipo) {
         this.tipo.setTipo(tipo);
     }
+
+    public void setValor(String valor) {
+        this.valor = valor;
+    }
+
 }
 
 class Undefined extends Expression {
@@ -53,15 +71,14 @@ class Undefined extends Expression {
 }
 
 class Literal extends Expression {
-    private final String value;
 
     public Literal(String value, String tipo) {
-        this.value = value;
+        this.valor = value;
         this.tipo = new Tipo(tipo);
     }
 
     public void printParseTree(int depth, boolean sub) {
-        System.out.println(this.value);
+        System.out.println(this.valor);
     }
 }
 
@@ -266,6 +283,15 @@ class Instruccion extends ASTNode {
         this.next = null;
     }
 
+    public void Interpretar() {
+        if (instruccion != null) {
+            instruccion.Interpretar();
+            if (next != null) {
+                next.Interpretar();
+            }
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         if (instruccion != null) {
             instruccion.printParseTree(depth, sub);
@@ -281,6 +307,12 @@ class Secuenciacion extends ASTNode {
 
     public Secuenciacion(Instruccion child) {
         this.child = child;
+    }
+
+    public void Interpretar() {
+        if (child.next != null) {
+            child.Interpretar();
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -300,6 +332,10 @@ class Asignacion extends ASTNode {
     public Asignacion(Identificador identificador, Expression expression) {
         this.identificador = identificador;
         this.expression = expression;
+    }
+
+    public void Interpretar() {
+        this.identificador.setValor(expression.getValor());
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -419,6 +455,12 @@ class Read extends ASTNode {
         this.identificador = identificador;
     }
 
+    public void Interpretar() {
+        try (Scanner s = new Scanner(System.in)) {
+            this.identificador.setValor(s.nextLine());
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         System.out.print(StringUtils.stringTab("READ", depth, sub) + "\n");
         System.out.print(StringUtils.stringTab("- var: ", depth + 1, false));
@@ -431,6 +473,10 @@ class Print extends ASTNode {
 
     public Print(Expression expression) {
         this.expression = expression;
+    }
+
+    public void Interpretar() {
+        System.out.println(expression.getValor());
     }
 
     public void printParseTree(int depth, boolean sub) {
