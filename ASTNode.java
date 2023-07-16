@@ -361,11 +361,15 @@ class IteracionIndet extends ASTNode {
     }
 
     public void printParseTree(int depth, boolean sub) {
-        System.out.print(StringUtils.stringTab("ITERACION_INDET", depth, sub));
+        System.out.print(StringUtils.stringTab("ITERACION_INDET", depth, sub) + "\n");
         System.out.print(StringUtils.stringTab("- guardia: ", depth + 1, false));
         guardia.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- cuerpo: ", depth + 1, false));
-        body.printParseTree(depth + 2, true);
+        if (body != null) {
+            body.printParseTree(depth + 2, true);
+        } else {
+            System.out.println("INSTRUCCION VACIA");
+        }
     }
 }
 
@@ -400,7 +404,11 @@ class IteracionDet extends ASTNode {
         System.out.print(StringUtils.stringTab("- limite superior: ", depth + 1, false));
         fin.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- cuerpo: ", depth + 1, false));
-        body.printParseTree(depth + 2, true);
+        if (this.body != null) {
+            body.printParseTree(depth + 2, true);
+        } else {
+            System.out.println("INSTRUCCION VACIA");
+        }
     }
 }
 
