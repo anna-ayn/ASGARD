@@ -1,4 +1,4 @@
-class Tipo {
+public class Tipo {
     protected String tipo;
 
     public Tipo() {

@@ -58,6 +58,7 @@ terminal TkIf, TkThen, TkOtherwise, TkWhile, TkTo, TkFrom, TkDone, TkRepeat, TkW
 terminal TkRead, TkPrint;
 terminal TkTrue, TkFalse;
 terminal TkIdent;
+terminal TkError;
 
 /* No terminales */
 non terminal secuenciacion;

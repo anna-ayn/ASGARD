@@ -10,6 +10,8 @@ import java_cup.runtime.Symbol;
 %unicode
 %cup
 %ignorecase
+%type Symbol
+
 
 %init{ 
     yyline = 1; 
@@ -23,6 +25,8 @@ comment = "{-" (\s | .) ~"-}"
 identifiers = {letter}({letter} | {digit})*
 canvaslit = "<empty>"|"</>"|"<\\>"|"<|>"|"<_>"|"<.>"
 %%
+
+
 
 /* Finaliza la sección de declaraciones de JFlex */
  
@@ -40,8 +44,10 @@ no obstante, no pueden ser antecedidos por literales numericos ni de tipo lienzo
 /* {canvaslit}+{identifiers}: precede al menos un literal canvas al identificador */
 /* {identifiers} {canvaslit}: seguido de un literal canvas luego del identificador*/
 ({digit}+{identifiers}) | ({canvaslit}+{identifiers}) | ({identifiers} {canvaslit}) {
-    System.out.println("Error: Caracter inesperado '"+yytext()+
-    "' en la fila "+yyline+", columna "+yycolumn);}
+   System.out.println("Error: Caracter inesperado '"+yytext()+
+    "' en la fila "+yyline+", columna "+yycolumn);
+    return new Symbol(sym.TkError, yyline, yycolumn);
+}
 /* Identificadores de las variables y palabas reservadas */
 {identifiers} {
         /* Se analiza el String matcheado */
@@ -129,6 +135,8 @@ no obstante, no pueden ser antecedidos por literales numericos ni de tipo lienzo
 /* en otro caso, se produce un error */
 . {
     System.out.println("Error: Caracter inesperado '"+yytext()+
-    "' en la fila "+yyline+", columna "+yycolumn);}
+    "' en la fila "+yyline+", columna "+yycolumn);
+    return new Symbol(sym.TkError, yyline, yycolumn);
+}
 
 /* Finaliza la sesion de reglas */
