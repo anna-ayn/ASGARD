@@ -157,10 +157,32 @@ asignVariables ::= TkIdent:a TkAsignacion expresion:b {:
                    RESULT = new Undefined();
                 }:};
 
-IteracionIndet ::= TkWhile expresion:a TkRepeat bloque:b TkDone {:
+IteracionIndet ::= TkWhile expresion:a TkRepeat TkDone {:
+                RESULT = errors_queue.isEmpty() ? new IteracionIndet((Expression) a, null) : new Undefined(); :}
+                |TkWhile expresion:a TkRepeat bloque:b TkDone {:
                 RESULT = errors_queue.isEmpty() ? new IteracionIndet((Expression) a, (ASTNode) b) : new Undefined(); :};
 
-IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat bloque:c TkDone {:
+IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat TkDone {:
+                /* verificar que los limites sean expresiones aritmeticas */
+                Expression exp1 = (Expression) a;
+                Expression exp2 = (Expression) b;
+
+                if (exp1.getTipo() == "undefined" || exp2.getTipo() == "undefined") {
+                        context_error(aleft, aright, "Hubo un error con los limites de la iteración determinada");  
+                        RESULT = new Undefined();
+                } 
+                else if (exp1.getTipo() == "integer") {
+                        if (exp2.getTipo() == "integer") {
+                                RESULT = new IteracionDet(exp1, exp2, null);
+                        } else {
+                                context_error(aleft, aright, "El limite superior no es una expresión aritmética");  
+                                RESULT = new Undefined();
+                        }
+                } else {
+                        context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
+                        RESULT = new Undefined(); 
+                }:}
+                |TkFrom expresion:a TkTo expresion:b TkRepeat bloque:c TkDone {:
                 /* verificar que los limites sean expresiones aritmeticas */
                 Expression exp1 = (Expression) a;
                 Expression exp2 = (Expression) b;
@@ -180,6 +202,26 @@ IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat bloque:c TkDone {:
                         context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
                         RESULT = new Undefined(); 
                 }:}
+        | TkWith abrirAlcance nuevoInteger:a expresion:b TkTo expresion:c TkRepeat TkDone cerrarAlcance {:
+                        /* verificar que los limites sean expresiones aritmeticas */
+                        Identificador ident = (Identificador) a;
+                        Expression exp1 = (Expression) b;
+                        Expression exp2 = (Expression) c;
+                        if (exp1.getTipo() == "undefined" || exp2.getTipo() == "undefined") {
+                                context_error(aleft, aright, "Hubo un error con los limites de la iteración determinada");  
+                                RESULT = new Undefined();
+                        } 
+                        else if (exp1.getTipo() == "integer") {
+                                if (exp2.getTipo() == "integer") {
+                                        RESULT = new IteracionDet(ident, exp1, exp2, null);
+                                } else {
+                                        context_error(aleft, aright, "El limite superior no es una expresión aritmética");  
+                                        RESULT = new Undefined();
+                                }
+                        } else {
+                                context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
+                                RESULT = new Undefined();
+                        }:}
         | TkWith abrirAlcance nuevoInteger:a expresion:b TkTo expresion:c TkRepeat bloque:d TkDone cerrarAlcance {:
                         /* verificar que los limites sean expresiones aritmeticas */
                         Identificador ident = (Identificador) a;
