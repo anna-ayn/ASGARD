@@ -248,7 +248,7 @@ Condicional ::= TkIf expresion:a TkThen TkDone {:
                         RESULT = new Undefined(); 
                 }
                 else if (exp.getTipo() == "boolean") {
-                        RESULT = new Condicional(exp, (ASTNode) b, (ASTNode) c); 
+                        RESULT = new Condicional(exp); 
                 } else {
                         context_error(aleft, aright, "La guardia no es una expresión booleana");
                         RESULT = new Undefined(); 
