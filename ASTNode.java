@@ -102,6 +102,13 @@ class Identificador extends Expression {
         return this.repeat_det;
     }
 
+    public void Interpretar() {
+        if (getValor() == null) {
+            System.out.println("La variable '" + identificador + "' aun no ha sido inicializada.");
+            System.exit(0);
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         System.out.println(this.identificador);
     }
@@ -497,8 +504,22 @@ class Read extends ASTNode {
         String str;
         try {
             str = reader.readLine();
-            this.identificador.setValor(str);
-            reader.close();
+            if (identificador.getTipo() == "boolean" && (str == "true" || str == "false")) {
+                this.identificador.setValor(str);
+                reader.close();
+            } else if (identificador.getTipo() == "integer") {
+                try {
+                    Integer.parseInt(str);
+                    this.identificador.setValor(str);
+                    reader.close();
+                } catch (NumberFormatException e) {
+                    System.out.println(str + " no es un entero.");
+                    System.exit(0);
+                }
+            } else {
+                System.out.println("ERROR");
+                System.exit(0);
+            }
         } catch (IOException e) {
         }
 
