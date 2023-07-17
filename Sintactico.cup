@@ -4,15 +4,23 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.Comparator;
 
+action code {:
+    /*Arbol Sintactico del programa*/
+    ASTNode program;
+
+    public void finalizar() {
+        program.Interpretar();
+    }
+:};
 
 parser code
 {:
-    
     /* Priority Queue para los errores de contexto */
     public PriorityQueue<Pair> errors_queue = new PriorityQueue<>(Comparator.comparingInt(Pair::getFila));
 
     /* Tabla de Simbolos del programa Asgard */
     public SymbolTable tablaActual;
+
     /**
      * Método al que se llama automáticamente ante algún error sintactico.
      * Se imprime solamente el primer error.
@@ -40,7 +48,6 @@ parser code
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{  
     }
 
-    
     
 :}
 
@@ -104,17 +111,17 @@ start with programa;
 /* Reglas de producción */
 
 programa ::= iniciarAlcance alcance:a{:/*Inicializar el arbol sintactico abstracto*/
-                                       ASTNode program = new DefaultNode((ASTNode) a); 
-                                       /* Si la cola de errores de contexto esta vacia, se corre el programa*/
-                                       if (errors_queue.isEmpty()) { 
-                                                program.Interpretar();
-                                       } else  {
-                                                /* en caso contrario, se imprime la cola de errores*/
+                                       program = new DefaultNode((ASTNode) a); 
+                                       /* Si la cola de errores de contexto no esta vacia*/
+                                       if (!errors_queue.isEmpty()) { 
+                                                /* se imprime la cola de errores*/
                                                 System.out.println("Se encontraron los siguientes errores de contexto: \n");
                                                while (!errors_queue.isEmpty()) {
                                                         Pair x = errors_queue.poll();
                                                         System.out.println(x.getMsg());
                                                 } 
+                                       } else {
+                                                finalizar();
                                        }:};
 
 alcance ::= TkUsing abrirAlcance decIdentificadores TkBegin bloque:a TkEnd cerrarAlcance {:

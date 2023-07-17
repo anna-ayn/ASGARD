@@ -10,21 +10,9 @@ public class Main {
         try {
 
             // Hago una copia del archivo .asg
-            Scanner scanner = new Scanner(System.in);
-            File file = new File("copy.asg");
-            FileOutputStream outputStream = new FileOutputStream(file);
-            PrintWriter writer = new PrintWriter(outputStream);
-
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                writer.println(line);
-            }
-
-            writer.close();
-            outputStream.close();
-
-            /* Paso el archivo output.asg por el analizador lexico */
-            BufferedReader buffer = new BufferedReader(new FileReader(file));
+            String filepath = args[0];
+            /* Paso el archivo por el analizador lexico */
+            BufferedReader buffer = new BufferedReader(new FileReader(filepath));
             Lexico analizadorJFlex = new Lexico(buffer);
 
             boolean lexical_errors = false;
@@ -45,7 +33,7 @@ public class Main {
             // si no ocurre ningun error lexico, paso el archivo al parser
             if (!lexical_errors) {
                 try {
-                    buffer = new BufferedReader(new FileReader(file));
+                    buffer = new BufferedReader(new FileReader(filepath));
                     parser p = new parser(new Lexico(buffer));
                     p.parse();
 
@@ -53,8 +41,6 @@ public class Main {
                     System.out.println(e.toString());
                 }
             }
-
-            file.deleteOnExit();
 
         } catch (Exception e) {
             System.out.println(e.toString());

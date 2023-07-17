@@ -310,9 +310,7 @@ class Secuenciacion extends ASTNode {
     }
 
     public void Interpretar() {
-        if (child.next != null) {
-            child.Interpretar();
-        }
+        child.Interpretar();
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -456,9 +454,16 @@ class Read extends ASTNode {
     }
 
     public void Interpretar() {
-        try (Scanner s = new Scanner(System.in)) {
-            this.identificador.setValor(s.nextLine());
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String str;
+        try {
+            str = reader.readLine();
+            this.identificador.setValor(str);
+            reader.close();
+        } catch (IOException e) {
         }
+
     }
 
     public void printParseTree(int depth, boolean sub) {
