@@ -220,6 +220,27 @@ class ExpresionBooleanaBin extends OperacionBinaria {
                 : new ErrorType("Error de tipos");
     }
 
+    public void Interpretar() {
+        if (left.getValor() == null) {
+            left.Interpretar();
+        }
+        if (right.getValor() == null) {
+            right.Interpretar();
+        }
+        boolean op1 = Boolean.parseBoolean(left.getValor());
+        boolean op2 = Boolean.parseBoolean(right.getValor());
+        switch (this.operador) {
+            case "Conjuncion":
+                this.valor = String.valueOf(op1 && op2);
+                break;
+            case "Disyuncion":
+                this.valor = String.valueOf(op1 || op2);
+                break;
+            default:
+                break;
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         System.out.print(StringUtils.stringTab("BOOLEANO_BIN", depth, sub) + "\n");
         System.out.print(StringUtils.stringTab("- operacion: ", depth + 1, false));
@@ -236,6 +257,13 @@ class ExpresionBooleanaUna extends OperacionUnaria {
         super(operador, operando);
         this.tipo = (Objects.equals(operando.getTipo(), "boolean")) ? new Tipo("boolean")
                 : new ErrorType("Error de tipos");
+    }
+
+    public void Interpretar() {
+        if (operando.getValor() == null) {
+            operando.Interpretar();
+        }
+        this.valor = String.valueOf(!Boolean.parseBoolean(operando.getValor()));
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -265,6 +293,72 @@ class ExpresionRelacional extends OperacionBinaria {
          * : new ErrorType("Error de tipos");
          * }
          */
+    }
+
+    public void Interpretar() {
+        if (left.getValor() == null) {
+            left.Interpretar();
+        }
+        if (right.getValor() == null) {
+            right.Interpretar();
+        }
+        if (left.getTipo() == "integer") {
+            int op1 = Integer.parseInt(left.getValor());
+            int op2 = Integer.parseInt(right.getValor());
+            switch (this.operador) {
+                case "Igual":
+                    this.valor = String.valueOf(op1 == op2);
+                    break;
+                case "Desigual":
+                    this.valor = String.valueOf(op1 != op2);
+                    break;
+                case "Menor":
+                    this.valor = String.valueOf(op1 < op2);
+                    break;
+                case "Menor o igual":
+                    this.valor = String.valueOf(op1 <= op2);
+                    break;
+                case "Mayor":
+                    this.valor = String.valueOf(op1 > op2);
+                    break;
+                case "Mayor o igual":
+                    this.valor = String.valueOf(op1 >= op2);
+                    break;
+                default:
+                    break;
+            }
+        } else if (left.getTipo() == "boolean") {
+            boolean op1 = Boolean.parseBoolean(left.getValor());
+            boolean op2 = Boolean.parseBoolean(right.getValor());
+            switch (this.operador) {
+                case "Igual":
+                    this.valor = String.valueOf(op1 == op2);
+                    break;
+                case "Desigual":
+                    this.valor = String.valueOf(op1 != op2);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            // canvas
+            String op1 = left.getValor();
+            String op2 = right.getValor();
+            switch (this.operador) {
+                case "Igual":
+                    this.valor = String.valueOf(op1.equals(op2));
+                    break;
+                case "Desigual":
+                    if (op1.equals(op2)) {
+                        this.valor = "false";
+                    } else {
+                        this.valor = "true";
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -517,7 +611,7 @@ class Read extends ASTNode {
                     System.exit(0);
                 }
             } else {
-                System.out.println("ERROR");
+                System.out.println(str + " no es un booleano.");
                 System.exit(0);
             }
         } catch (IOException e) {
