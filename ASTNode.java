@@ -142,6 +142,12 @@ class ExpresionAritmeticaBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
+        if (left.getValor() == null) {
+            left.Interpretar();
+        }
+        if (right.getValor() == null) {
+            right.Interpretar();
+        }
         int op1 = Integer.parseInt(left.getValor());
         int op2 = Integer.parseInt(right.getValor());
         switch (this.operador) {
@@ -181,6 +187,13 @@ class ExpresionAritmeticaUna extends OperacionUnaria {
         super(operador, operando);
         this.tipo = (Objects.equals(operando.getTipo(), "integer")) ? new Tipo("integer")
                 : new ErrorType("Error de tipos");
+    }
+
+    public void Interpretar() {
+        if (operando.getValor() == null) {
+            operando.Interpretar();
+        }
+        this.valor = Integer.toString(-1 * Integer.parseInt(operando.getValor()));
     }
 
     public void printParseTree(int depth, boolean sub) {
