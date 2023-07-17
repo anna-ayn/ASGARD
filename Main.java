@@ -9,7 +9,6 @@ public class Main {
 
         try {
 
-            // Hago una copia del archivo .asg
             String filepath = args[0];
             /* Paso el archivo por el analizador lexico */
             BufferedReader buffer = new BufferedReader(new FileReader(filepath));

@@ -141,6 +141,30 @@ class ExpresionAritmeticaBin extends OperacionBinaria {
                 : new ErrorType("Error de tipos");
     }
 
+    public void Interpretar() {
+        int op1 = Integer.parseInt(left.getValor());
+        int op2 = Integer.parseInt(right.getValor());
+        switch (this.operador) {
+            case "Suma":
+                this.valor = Integer.toString(op1 + op2);
+                break;
+            case "Resta":
+                this.valor = Integer.toString(op1 - op2);
+                break;
+            case "Multiplicacion":
+                this.valor = Integer.toString(op1 * op2);
+                break;
+            case "Division":
+                this.valor = Integer.toString(op1 / op2);
+                break;
+            case "Modulo":
+                this.valor = Integer.toString(op1 % op2);
+                break;
+            default:
+                break;
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         System.out.print(StringUtils.stringTab("ARITMETICO_BIN", depth, sub) + "\n");
         System.out.print(StringUtils.stringTab("- operacion: ", depth + 1, false));
@@ -333,6 +357,7 @@ class Asignacion extends ASTNode {
     }
 
     public void Interpretar() {
+        expression.Interpretar();
         this.identificador.setValor(expression.getValor());
     }
 
