@@ -161,12 +161,8 @@ class ExpresionAritmeticaBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
-        if (left.getValor() == null) {
-            left.Interpretar();
-        }
-        if (right.getValor() == null) {
-            right.Interpretar();
-        }
+        left.Interpretar();
+        right.Interpretar();
         int op1 = Integer.parseInt(left.getValor());
         int op2 = Integer.parseInt(right.getValor());
         switch (this.operador) {
@@ -209,9 +205,7 @@ class ExpresionAritmeticaUna extends OperacionUnaria {
     }
 
     public void Interpretar() {
-        if (operando.getValor() == null) {
-            operando.Interpretar();
-        }
+        operando.Interpretar();
         this.valor = Integer.toString(-1 * Integer.parseInt(operando.getValor()));
     }
 
@@ -233,12 +227,8 @@ class ExpresionBooleanaBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
-        if (left.getValor() == null) {
-            left.Interpretar();
-        }
-        if (right.getValor() == null) {
-            right.Interpretar();
-        }
+        left.Interpretar();
+        right.Interpretar();
         boolean op1 = Boolean.parseBoolean(left.getValor());
         boolean op2 = Boolean.parseBoolean(right.getValor());
         switch (this.operador) {
@@ -272,9 +262,7 @@ class ExpresionBooleanaUna extends OperacionUnaria {
     }
 
     public void Interpretar() {
-        if (operando.getValor() == null) {
-            operando.Interpretar();
-        }
+        operando.Interpretar();
         this.valor = String.valueOf(!Boolean.parseBoolean(operando.getValor()));
     }
 
@@ -308,12 +296,8 @@ class ExpresionRelacional extends OperacionBinaria {
     }
 
     public void Interpretar() {
-        if (left.getValor() == null) {
-            left.Interpretar();
-        }
-        if (right.getValor() == null) {
-            right.Interpretar();
-        }
+        left.Interpretar();
+        right.Interpretar();
         if (left.getTipo() == "integer") {
             int op1 = Integer.parseInt(left.getValor());
             int op2 = Integer.parseInt(right.getValor());
@@ -389,12 +373,8 @@ class ExpresionCanvasBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
-        if (left.getValor() == null) {
-            left.Interpretar();
-        }
-        if (right.getValor() == null) {
-            right.Interpretar();
-        }
+        left.Interpretar();
+        right.Interpretar();
 
         if (left.getLienzo().get(0).get(0).equals("<empty>")) {
             this.lienzo = right.getLienzo();
@@ -445,9 +425,7 @@ class ExpresionCanvasUna extends OperacionUnaria {
     }
 
     public void Interpretar() {
-        if (operando.getValor() == null) {
-            operando.Interpretar();
-        }
+        operando.Interpretar();
         switch (this.operador) {
             case "Trasposicion":
                 this.lienzo = utils.returnTranspose(operando.getLienzo());
@@ -657,7 +635,7 @@ class IteracionDet extends ASTNode {
         String finish = fin.getValor();
 
         if (identificador != null) {
-            if (this.body != null) {
+            if (body != null) {
                 for (int i = Integer.parseInt(start); i < Integer.parseInt(finish); i++) {
                     identificador.valor = Integer.toString(i);
                     body.Interpretar();
@@ -685,7 +663,7 @@ class IteracionDet extends ASTNode {
         System.out.print(StringUtils.stringTab("- limite superior: ", depth + 1, false));
         fin.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- cuerpo: ", depth + 1, false));
-        if (this.body != null) {
+        if (body != null) {
             body.printParseTree(depth + 2, true);
         } else {
             System.out.println("INSTRUCCION VACIA");

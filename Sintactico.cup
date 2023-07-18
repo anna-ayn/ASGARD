@@ -490,7 +490,7 @@ expresion ::= TkIdent:a {: Identificador ident = tablaActual.get(a.toString());
                                 context_error(aleft, aright, "Operación relacional inválida"); 
                                 RESULT = new Undefined();
                         }:}
-        | TkCanvasLit:a {:  RESULT = new Literal(a.toString(), "canvas");:}
+        | TkCanvasLit:a {: RESULT = new Literal(a.toString(), "canvas");:}
         | expresion:a TkTrasposicion {:  
                         Expression exp = (Expression) a;
                         if (exp.getTipo() == "canvas") {

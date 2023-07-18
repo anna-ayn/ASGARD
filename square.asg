@@ -1,0 +1,26 @@
+using n of type integer; square of type canvas begin
+  read n;
+  square := <empty>;
+  from 1 to n repeat
+    square := square : <_>
+  done;
+  from 1 to n - 2 repeat
+    using temp of type canvas begin
+      temp := <empty>;
+      temp := temp : <|>;
+      from 1 to n - 2 repeat
+          temp := temp : <.>
+      done;
+      temp := temp : <|>;
+      square := square | temp
+    end
+  done;
+  using temp of type canvas begin
+    temp := <empty>;
+    from 1 to n repeat
+      temp := temp : <_>
+    done;
+    square := square | temp
+  end;
+  print square
+end

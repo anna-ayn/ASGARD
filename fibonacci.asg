@@ -1,0 +1,22 @@
+using n of type integer begin
+  read n;
+  if n = 0 then
+    print 0
+  otherwise
+    if n = 1 then
+      print 1
+    otherwise
+      using first, second, nth of type integer begin
+        first := 0;
+        second := 1; 
+        nth := 1;
+        from 2 to n repeat
+          nth := first + second;
+          first := second;
+          second := nth
+        done;
+        print nth
+      end
+    done
+  done
+end
