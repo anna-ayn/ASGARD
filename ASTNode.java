@@ -1,9 +1,9 @@
-import java.util.Objects;
+import java.util.*;
 import java.io.*;
-import java.util.Scanner;
 
 abstract class ASTNode {
     private ASTNode child;
+    protected Utils utils = new Utils();
 
     public ASTNode getChild() {
         return child;
@@ -45,6 +45,7 @@ class DefaultNode extends ASTNode {
 class Expression extends ASTNode {
     protected String valor;
     protected Tipo tipo;
+    List<List<String>> lienzo = new ArrayList<List<String>>();
 
     public String getTipo() {
         return tipo.getTipo();
@@ -52,6 +53,10 @@ class Expression extends ASTNode {
 
     public String getValor() {
         return this.valor;
+    }
+
+    public List<List<String>> getLienzo() {
+        return this.lienzo;
     }
 
     public void setTipo(String tipo) {
@@ -75,6 +80,14 @@ class Literal extends Expression {
     public Literal(String value, String tipo) {
         this.valor = value;
         this.tipo = new Tipo(tipo);
+
+        if (this.tipo.getTipo() == "canvas") {
+            this.lienzo.add(new ArrayList<String>() {
+                {
+                    add(value);
+                }
+            });
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -342,18 +355,14 @@ class ExpresionRelacional extends OperacionBinaria {
             }
         } else {
             // canvas
-            String op1 = left.getValor();
-            String op2 = right.getValor();
             switch (this.operador) {
                 case "Igual":
-                    this.valor = String.valueOf(op1.equals(op2));
+                    this.valor = utils.compararCanvas(this.left.getLienzo(), this.right.getLienzo()) ? "true"
+                            : "false";
                     break;
                 case "Desigual":
-                    if (op1.equals(op2)) {
-                        this.valor = "false";
-                    } else {
-                        this.valor = "true";
-                    }
+                    this.valor = utils.compararCanvas(this.left.getLienzo(), this.right.getLienzo()) ? "false"
+                            : "true";
                     break;
                 default:
                     break;
@@ -380,6 +389,44 @@ class ExpresionCanvasBin extends OperacionBinaria {
                 : new ErrorType("Error de tipos");
     }
 
+    public void Interpretar() {
+        if (left.getValor() == null) {
+            left.Interpretar();
+        }
+        if (right.getValor() == null) {
+            right.Interpretar();
+        }
+
+        if (left.getLienzo().get(0).get(0).equals("<empty>")) {
+            this.lienzo = right.getLienzo();
+        } else if (right.getLienzo().get(0).get(0).equals("<empty>")) {
+            this.lienzo = left.getLienzo();
+        } else {
+            switch (this.operador) {
+                case "Concatenacion Horizontal":
+                    if (left.getLienzo().size() == right.getLienzo().size()) {
+                        this.lienzo = utils.concatHorizontal(left.getLienzo(), right.getLienzo());
+                    } else {
+                        System.out.println(
+                                "No se puede realizar la concatenacion horizontal, debido a que las dimensiones verticales de ambos lienzos no coinciden.");
+                        System.exit(0);
+                    }
+                    break;
+                case "Concatenacion Vertical":
+                    if (left.getLienzo().get(0).size() == right.getLienzo().get(0).size()) {
+                        this.lienzo = utils.concatVertical(left.getLienzo(), right.getLienzo());
+                    } else {
+                        System.out.println(
+                                "No se puede realizar la concatenacion vertical, debido a que las dimensiones horizontales de ambos lienzos no coinciden.");
+                        System.exit(0);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         System.out.print(StringUtils.stringTab("CANVAS_BIN", depth, sub) + "\n");
         System.out.print(StringUtils.stringTab("- operacion: ", depth + 1, false));
@@ -396,6 +443,22 @@ class ExpresionCanvasUna extends OperacionUnaria {
         super(operador, operando);
         this.tipo = (Objects.equals(operando.getTipo(), "canvas")) ? new Tipo("canvas")
                 : new ErrorType("Error de tipos");
+    }
+
+    public void Interpretar() {
+        if (operando.getValor() == null) {
+            operando.Interpretar();
+        }
+        switch (this.operador) {
+            case "Trasposicion":
+                this.lienzo = utils.returnTranspose(operando.getLienzo());
+                break;
+            case "Rotacion":
+                this.lienzo = utils.returnRotacion(operando.getLienzo());
+                break;
+            default:
+                break;
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -473,6 +536,9 @@ class Asignacion extends ASTNode {
     public void Interpretar() {
         expression.Interpretar();
         this.identificador.setValor(expression.getValor());
+        if (identificador.getTipo() == "canvas") {
+            this.identificador.lienzo = expression.getLienzo();
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -634,7 +700,11 @@ class Print extends ASTNode {
     }
 
     public void Interpretar() {
-        System.out.println(expression.getValor());
+        if (expression.getTipo() != "canvas")
+            System.out.println(expression.getValor());
+        else {
+            utils.printCanvas(expression.getLienzo());
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
