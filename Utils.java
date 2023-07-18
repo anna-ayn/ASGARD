@@ -59,7 +59,7 @@ public class Utils {
     }
 
     public boolean compararCanvas(List<List<String>> table1, List<List<String>> table2) {
-        if (table1.size() == table2.size()) {
+        if (table1.size() == table2.size() && table1.get(0).size() == table2.get(0).size()) {
             boolean igual = true;
             for (int i = 0; i < table1.size(); i++) {
                 if (table1.get(i).equals(table2.get(i)) == false)
@@ -76,21 +76,11 @@ public class Utils {
     }
 
     public List<List<String>> concatHorizontal(List<List<String>> table1, List<List<String>> table2) {
-        List<List<String>> result = new ArrayList<List<String>>();
-
-        final int size = table1.get(0).size();
+        final int size = table1.size();
         for (int i = 0; i < size; i++) {
-            List<String> tempList = new ArrayList<String>();
-
-            for (List<String> row : table1) {
-                tempList.add(row.get(i));
-            }
-            for (List<String> row : table2) {
-                tempList.add(row.get(i));
-            }
-            result.add(tempList);
+            table1.get(i).addAll(table2.get(i));
         }
-        return result;
+        return table1;
     }
 
     public List<List<String>> concatVertical(List<List<String>> table1, List<List<String>> table2) {

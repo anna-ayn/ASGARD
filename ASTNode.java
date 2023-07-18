@@ -66,7 +66,6 @@ class Expression extends ASTNode {
     public void setValor(String valor) {
         this.valor = valor;
     }
-
 }
 
 class Undefined extends Expression {
@@ -116,8 +115,8 @@ class Identificador extends Expression {
     }
 
     public void Interpretar() {
-        if (getValor() == null) {
-            System.out.println("La variable '" + identificador + "' aun no ha sido inicializada.");
+        if ((getTipo() != "canvas" && getValor() == null) || (getLienzo() == null)) {
+            System.out.println("La variable '" + this.identificador + "' aun no ha sido inicializada.");
             System.exit(0);
         }
     }
@@ -573,6 +572,15 @@ class Condicional extends ASTNode {
         this.elseBody = elseBody;
     }
 
+    public void Interpretar() {
+        guardia.Interpretar();
+        if (guardia.getValor().equals("true")) {
+            ifBody.Interpretar();
+        } else if (elseBody != null) {
+            elseBody.Interpretar();
+        }
+    }
+
     public void printParseTree(int depth, boolean sub) {
         System.out.print(StringUtils.stringTab("CONDICIONAL", depth, sub) + "\n");
         System.out.print(StringUtils.stringTab("- guardia: ", depth + 1, false));
@@ -597,6 +605,15 @@ class IteracionIndet extends ASTNode {
     public IteracionIndet(Expression guardia, ASTNode body) {
         this.guardia = guardia;
         this.body = body;
+    }
+
+    public void Interpretar() {
+        guardia.Interpretar();
+
+        while (guardia.getValor() == "true" && body != null) {
+            body.Interpretar();
+            guardia.Interpretar();
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -630,6 +647,31 @@ class IteracionDet extends ASTNode {
         this.inicio = inicio;
         this.fin = fin;
         this.body = body;
+    }
+
+    public void Interpretar() {
+        inicio.Interpretar();
+        fin.Interpretar();
+
+        String start = inicio.getValor();
+        String finish = fin.getValor();
+
+        if (identificador != null) {
+            if (this.body != null) {
+                for (int i = Integer.parseInt(start); i < Integer.parseInt(finish); i++) {
+                    identificador.valor = Integer.toString(i);
+                    body.Interpretar();
+                }
+            }
+        } else {
+            if (body != null) {
+                int cantidad = Math.max(Integer.parseInt(finish) - Integer.parseInt(start) + 1, 0);
+                while (cantidad > 0) {
+                    body.Interpretar();
+                    cantidad--;
+                }
+            }
+        }
     }
 
     public void printParseTree(int depth, boolean sub) {
@@ -700,6 +742,9 @@ class Print extends ASTNode {
     }
 
     public void Interpretar() {
+        if (expression.getValor() == null) {
+            expression.Interpretar();
+        }
         if (expression.getTipo() != "canvas")
             System.out.println(expression.getValor());
         else {
