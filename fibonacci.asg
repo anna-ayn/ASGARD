@@ -1,15 +1,13 @@
 using n of type integer begin
   read n;
-  if n = 0 then
-    print 0
-  otherwise
-    if n = 1 then
+  if n > 0 then
+    if n = 0 \/ n = 1 then
       print 1
-    otherwise
+    otherwise 
       using first, second, nth of type integer begin
-        first := 0;
+        first := 1;
         second := 1; 
-        nth := 1;
+        nth := 0;
         from 2 to n repeat
           nth := first + second;
           first := second;
@@ -17,6 +15,6 @@ using n of type integer begin
         done;
         print nth
       end
-    done
+    done 
   done
 end
