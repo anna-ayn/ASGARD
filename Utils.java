@@ -76,19 +76,32 @@ public class Utils {
     }
 
     public List<List<String>> concatHorizontal(List<List<String>> table1, List<List<String>> table2) {
+        List<List<String>> result = new ArrayList<List<String>>();
+
         final int size = table1.size();
         for (int i = 0; i < size; i++) {
-            table1.get(i).addAll(table2.get(i));
+            List<String> tempList = new ArrayList<String>();
+            tempList.addAll(table1.get(i));
+            tempList.addAll(table2.get(i));
+            result.add(tempList);
         }
-        return table1;
+        return result;
     }
 
     public List<List<String>> concatVertical(List<List<String>> table1, List<List<String>> table2) {
+        List<List<String>> result = new ArrayList<List<String>>();
 
-        for (List<String> row : table2) {
-            table1.add(row);
+        final int size = table1.size();
+        final int size2 = table2.size();
+        for (int i = 0; i < size; i++) {
+            result.add(table1.get(i));
         }
-        return table1;
+
+        for (int i = 0; i < size2; i++) {
+            result.add(table2.get(i));
+        }
+
+        return result;
     }
 
     public void printCanvas(List<List<String>> table) {
