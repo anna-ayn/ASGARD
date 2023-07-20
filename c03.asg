@@ -1,0 +1,6 @@
+using x of type integer begin
+  {- comentario que {-
+  anida un comentario interno -}
+  cuando no debe. -} 
+  print x
+end

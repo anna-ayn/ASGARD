@@ -1,0 +1,4 @@
+using x, y of type integer begin
+  if x = y then
+    print x
+end

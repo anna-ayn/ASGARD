@@ -165,9 +165,21 @@ asignVariables ::= TkIdent:a TkAsignacion expresion:b {:
                 }:};
 
 IteracionIndet ::= TkWhile expresion:a TkRepeat TkDone {:
-                RESULT = errors_queue.isEmpty() ? new IteracionIndet((Expression) a, null) : new Undefined(); :}
+                Expression exp1 = (Expression) a;
+                if (exp1.getTipo() == "boolean") {
+                        RESULT = new IteracionIndet((Expression) a, null);
+                } else {
+                        context_error(aleft, aright, "La expresión que le sigue del While no es una expresión booleana");  
+                        RESULT = new Undefined();
+                } :}
                 |TkWhile expresion:a TkRepeat bloque:b TkDone {:
-                RESULT = errors_queue.isEmpty() ? new IteracionIndet((Expression) a, (ASTNode) b) : new Undefined(); :};
+                Expression exp1 = (Expression) a;
+                if (exp1.getTipo() == "boolean") {
+                        RESULT = new IteracionIndet((Expression) a, (ASTNode) b);
+                } else {
+                        context_error(aleft, aright, "La expresión que le sigue del While no es una expresión booleana");  
+                        RESULT = new Undefined();
+                } :};
 
 IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat TkDone {:
                 /* verificar que los limites sean expresiones aritmeticas */
