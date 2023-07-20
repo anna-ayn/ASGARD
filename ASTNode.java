@@ -176,6 +176,10 @@ class ExpresionAritmeticaBin extends OperacionBinaria {
                 this.valor = Integer.toString(op1 * op2);
                 break;
             case "Division":
+                if (op2 == 0) {
+                    System.out.println("No se puede dividir entre 0.");
+                    System.exit(0);
+                }
                 this.valor = Integer.toString(op1 / op2);
                 break;
             case "Modulo":
@@ -564,11 +568,7 @@ class Condicional extends ASTNode {
         System.out.print(StringUtils.stringTab("- guardia: ", depth + 1, false));
         guardia.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- exito: ", depth + 1, false));
-        if (ifBody != null) {
-            ifBody.printParseTree(depth + 2, true);
-        } else {
-            System.out.println("INSTRUCCION VACIA");
-        }
+        ifBody.printParseTree(depth + 2, true);
         if (elseBody != null) {
             System.out.print(StringUtils.stringTab("- fallo: ", depth + 1, false));
             elseBody.printParseTree(depth + 2, true);
@@ -588,7 +588,7 @@ class IteracionIndet extends ASTNode {
     public void Interpretar() {
         guardia.Interpretar();
 
-        while (guardia.getValor() == "true" && body != null) {
+        while (guardia.getValor() == "true") {
             body.Interpretar();
             guardia.Interpretar();
         }
@@ -599,11 +599,7 @@ class IteracionIndet extends ASTNode {
         System.out.print(StringUtils.stringTab("- guardia: ", depth + 1, false));
         guardia.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- cuerpo: ", depth + 1, false));
-        if (body != null) {
-            body.printParseTree(depth + 2, true);
-        } else {
-            System.out.println("INSTRUCCION VACIA");
-        }
+        body.printParseTree(depth + 2, true);
     }
 }
 
@@ -635,20 +631,17 @@ class IteracionDet extends ASTNode {
         String finish = fin.getValor();
 
         if (identificador != null) {
-            if (body != null) {
-                for (int i = Integer.parseInt(start); i < Integer.parseInt(finish); i++) {
-                    identificador.valor = Integer.toString(i);
-                    body.Interpretar();
-                }
+            for (int i = Integer.parseInt(start); i < Integer.parseInt(finish); i++) {
+                identificador.valor = Integer.toString(i);
+                body.Interpretar();
             }
         } else {
-            if (body != null) {
-                int cantidad = Math.max(Integer.parseInt(finish) - Integer.parseInt(start) + 1, 0);
-                while (cantidad > 0) {
-                    body.Interpretar();
-                    cantidad--;
-                }
+            int cantidad = Math.max(Integer.parseInt(finish) - Integer.parseInt(start) + 1, 0);
+            while (cantidad > 0) {
+                body.Interpretar();
+                cantidad--;
             }
+
         }
     }
 
@@ -663,11 +656,8 @@ class IteracionDet extends ASTNode {
         System.out.print(StringUtils.stringTab("- limite superior: ", depth + 1, false));
         fin.printParseTree(depth + 2, true);
         System.out.print(StringUtils.stringTab("- cuerpo: ", depth + 1, false));
-        if (body != null) {
-            body.printParseTree(depth + 2, true);
-        } else {
-            System.out.println("INSTRUCCION VACIA");
-        }
+        body.printParseTree(depth + 2, true);
+
     }
 }
 

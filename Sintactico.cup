@@ -31,6 +31,16 @@ parser code
         System.exit(1);
     }
 
+    /**
+     * Otro método al que se llama automáticamente ante algún error sintactico.
+     * pero solo es para retornar errores de instrucciones vacias.
+     **/
+    public void syntax_error(int sleft, int sright){ 
+        System.out.println("Error sintáctico en la línea " + (sleft) +
+        ", columna "+ sright + ".");
+        System.exit(1);
+    }
+
     /* Metodo al que se llama automaticamente ante algun error de contexto
     Se guarda en una cola estos errores
     */
@@ -130,7 +140,8 @@ alcance ::= TkUsing abrirAlcance decIdentificadores TkBegin bloque:a TkEnd cerra
 
 bloque ::= secuenciacion:a {:RESULT = errors_queue.isEmpty() ? new Secuenciacion((Instruccion) a) : new Undefined(); :};
 
-secuenciacion ::= instruccion:a {: RESULT = errors_queue.isEmpty() ? new Instruccion((ASTNode) a) : new Undefined();:}
+secuenciacion ::= TkComa:a TkComa {:syntax_error(aleft, aright);:}
+        |instruccion:a {: RESULT = errors_queue.isEmpty() ? new Instruccion((ASTNode) a) : new Undefined();:}
         | secuenciacion:a TkPuntoYComa instruccion:b {:
         RESULT = errors_queue.isEmpty() ?  new Instruccion((ASTNode) a, (ASTNode) b) : new Undefined(); :};
 
@@ -164,14 +175,7 @@ asignVariables ::= TkIdent:a TkAsignacion expresion:b {:
                    RESULT = new Undefined();
                 }:};
 
-IteracionIndet ::= TkWhile expresion:a TkRepeat TkDone {:
-                Expression exp1 = (Expression) a;
-                if (exp1.getTipo() == "boolean") {
-                        RESULT = new IteracionIndet((Expression) a, null);
-                } else {
-                        context_error(aleft, aright, "La expresión que le sigue del While no es una expresión booleana");  
-                        RESULT = new Undefined();
-                } :}
+IteracionIndet ::= TkWhile expresion TkRepeat TkDone:a {: syntax_error(aleft, aright); :}
                 |TkWhile expresion:a TkRepeat bloque:b TkDone {:
                 Expression exp1 = (Expression) a;
                 if (exp1.getTipo() == "boolean") {
@@ -181,26 +185,7 @@ IteracionIndet ::= TkWhile expresion:a TkRepeat TkDone {:
                         RESULT = new Undefined();
                 } :};
 
-IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat TkDone {:
-                /* verificar que los limites sean expresiones aritmeticas */
-                Expression exp1 = (Expression) a;
-                Expression exp2 = (Expression) b;
-
-                if (exp1.getTipo() == "undefined" || exp2.getTipo() == "undefined") {
-                        context_error(aleft, aright, "Hubo un error con los limites de la iteración determinada");  
-                        RESULT = new Undefined();
-                } 
-                else if (exp1.getTipo() == "integer") {
-                        if (exp2.getTipo() == "integer") {
-                                RESULT = new IteracionDet(exp1, exp2, null);
-                        } else {
-                                context_error(aleft, aright, "El limite superior no es una expresión aritmética");  
-                                RESULT = new Undefined();
-                        }
-                } else {
-                        context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
-                        RESULT = new Undefined(); 
-                }:}
+IteracionDet ::= TkFrom expresion TkTo expresion TkRepeat TkDone:a {: syntax_error(aleft, aright); :}
                 |TkFrom expresion:a TkTo expresion:b TkRepeat bloque:c TkDone {:
                 /* verificar que los limites sean expresiones aritmeticas */
                 Expression exp1 = (Expression) a;
@@ -221,26 +206,7 @@ IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat TkDone {:
                         context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
                         RESULT = new Undefined(); 
                 }:}
-        | TkWith abrirAlcance nuevoInteger:a expresion:b TkTo expresion:c TkRepeat TkDone cerrarAlcance {:
-                        /* verificar que los limites sean expresiones aritmeticas */
-                        Identificador ident = (Identificador) a;
-                        Expression exp1 = (Expression) b;
-                        Expression exp2 = (Expression) c;
-                        if (exp1.getTipo() == "undefined" || exp2.getTipo() == "undefined") {
-                                context_error(aleft, aright, "Hubo un error con los limites de la iteración determinada");  
-                                RESULT = new Undefined();
-                        } 
-                        else if (exp1.getTipo() == "integer") {
-                                if (exp2.getTipo() == "integer") {
-                                        RESULT = new IteracionDet(ident, exp1, exp2, null);
-                                } else {
-                                        context_error(aleft, aright, "El limite superior no es una expresión aritmética");  
-                                        RESULT = new Undefined();
-                                }
-                        } else {
-                                context_error(aleft, aright, "El limite inferior no es una expresión aritmética");
-                                RESULT = new Undefined();
-                        }:}
+        | TkWith abrirAlcance nuevoInteger expresion TkTo expresion TkRepeat TkDone:a cerrarAlcance {: syntax_error(aleft, aright); :}
         | TkWith abrirAlcance nuevoInteger:a expresion:b TkTo expresion:c TkRepeat bloque:d TkDone cerrarAlcance {:
                         /* verificar que los limites sean expresiones aritmeticas */
                         Identificador ident = (Identificador) a;
@@ -262,19 +228,7 @@ IteracionDet ::= TkFrom expresion:a TkTo expresion:b TkRepeat TkDone {:
                                 RESULT = new Undefined();
                         }:};
 
-Condicional ::= TkIf expresion:a TkThen TkDone {:
-                /* verificar que la guardia sea una expresión booleana */
-                Expression exp = (Expression) a;
-                if (exp.getTipo() == "undefined") {
-                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
-                        RESULT = new Undefined(); 
-                }
-                else if (exp.getTipo() == "boolean") {
-                        RESULT = new Condicional((Expression) a);
-                } else {
-                        context_error(aleft, aright, "La guardia no es una expresión booleana"); 
-                        RESULT = new Undefined(); 
-                }:} 
+Condicional ::= TkIf expresion TkThen TkDone:a {: syntax_error(aleft, aright); :}
         | TkIf expresion:a TkThen bloque:b TkDone {:
                 /* verificar que la guardia sea una expresión booleana */
                 Expression exp = (Expression) a;
@@ -288,32 +242,8 @@ Condicional ::= TkIf expresion:a TkThen TkDone {:
                         context_error(aleft, aright, "La guardia no es una expresión booleana"); 
                         RESULT = new Undefined(); 
                 }:} 
-        | TkIf expresion:a TkThen TkOtherwise bloque:c TkDone {:
-                /* verificar que la guardia sea una expresión booleana */
-                Expression exp = (Expression) a;
-                if (exp.getTipo() == "undefined") {
-                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
-                        RESULT = new Undefined(); 
-                }
-                else if (exp.getTipo() == "boolean") {
-                        RESULT = new Condicional(exp, null, (ASTNode) c); 
-                } else {
-                        context_error(aleft, aright, "La guardia no es una expresión booleana");
-                        RESULT = new Undefined(); 
-                }:} 
-        | TkIf expresion:a TkThen TkOtherwise TkDone {:
-                /* verificar que la guardia sea una expresión booleana */
-                Expression exp = (Expression) a;
-                if (exp.getTipo() == "undefined") {
-                        context_error(aleft, aright, "Hubo un error con la guardia del condicional"); 
-                        RESULT = new Undefined(); 
-                }
-                else if (exp.getTipo() == "boolean") {
-                        RESULT = new Condicional(exp); 
-                } else {
-                        context_error(aleft, aright, "La guardia no es una expresión booleana");
-                        RESULT = new Undefined(); 
-                }:}  
+        | TkIf expresion TkThen TkOtherwise:a bloque TkDone {: syntax_error(aleft, aright); :}
+        | TkIf expresion TkThen bloque TkOtherwise TkDone:a {: syntax_error(aleft, aright); :}
         | TkIf expresion:a TkThen bloque:b TkOtherwise bloque:c TkDone {:
                 /* verificar que la guardia sea una expresión booleana */
                 Expression exp = (Expression) a;
