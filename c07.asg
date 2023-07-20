@@ -1,7 +1,0 @@
-using x, y of type integer begin
-  with z from 0 repeat
-    print x;
-    print y;
-    print z
-  done
-end

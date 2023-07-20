@@ -1,5 +1,0 @@
-using x of type integer begin
-    while 1 < x repeat
-    done ;
-    x := 1
-end

@@ -1,4 +1,0 @@
-using x, y of type integer begin
-  x := x * + y
-  y := x /
-end

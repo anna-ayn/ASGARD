@@ -1,5 +1,0 @@
-using x, y, z of type integer begin
-   print x;
-   print y;;
-   print z
-end

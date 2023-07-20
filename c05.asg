@@ -1,4 +1,0 @@
-using x, y of type boolean begin
-  x := ^ x \/ ^
-  y := x /\
-end
