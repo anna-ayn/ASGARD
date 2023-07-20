@@ -50,7 +50,7 @@ using n, digit of type integer; ascii, space of type canvas; flag of type boolea
             done;
             temp := <_>;
             from 1 to 2 repeat
-                temp := temp : <_>;
+                temp := temp : <_>
             done;
             digitCanvas := digitCanvas | temp
         done;
@@ -73,7 +73,7 @@ using n, digit of type integer; ascii, space of type canvas; flag of type boolea
             digitCanvas := digitCanvas | temp;
             temp := <_>;
             from 1 to 2 repeat
-                temp := temp : <_>;
+                temp := temp : <_>
             done;
             digitCanvas := digitCanvas | temp
         done;
@@ -112,8 +112,8 @@ using n, digit of type integer; ascii, space of type canvas; flag of type boolea
             temp := temp : <.>;
             temp := temp : <|>;
             from 1 to 2 repeat
-                digitCanvas := digitCanvas | temp;
-            done;
+                digitCanvas := digitCanvas | temp
+            done
         done;
         if digit = 5 then
             digitCanvas := <_>;
