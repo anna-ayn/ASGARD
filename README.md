@@ -52,21 +52,21 @@ Dado que el interpretador del lenguaje debe interpretar las instrucciones en el 
 primero interprete 3*2 como la multiplicación de dos literales, dando como resultado 6, luego interpreta la suma entre ese valor y 1, dando como resultado 7. Y finalmente, se interpreta la asignación de la variable x a 7. A continuación se especificará como se interpreta cada una de las instrucciones de ASGARD.
 ### ENTEROS Y BOOLEANOS
 Para el caso de los enteros y booleanos se accede al valor de la expresión mediante las clases `Integer` y `Boolean` para convertir los valores almacenados como `String` en enteros y booleanos, con lo metodos `parseInt` y `parseBoolean`, que puedan ser operados en Java. 
-- `Expresiones binarias (enteras y booleanas)`: Se llama al método Interpretar para que interprete el valor del lado izquierdo y derecho de la expresión, luego se verifica el tipo de operador y se operan los operandos convertido en `Integer` y `Boolean` respectivamente para calcular el valor de la expresión binaria.
+- `Expresiones binarias (enteras y booleanas)`: Se llama al método Interpretar para que interprete tanto el valor del operando izquierdo como el operando derecho de la expresión binaria, luego se verifica el tipo de operador y se operan los operandos convertido en `Integer` y `Boolean` respectivamente para calcular el valor de la expresión binaria.
 - `Expresiones unarias (enteras y booleanas)`: Equivalentemente a las expresiones binarias, se interpreta el operando, se convierte dicho operando en un `Integer` o `Boolean` respectivamente para aplicar la negación respectiva (multiplicar por -1 o aplicar la negación unaria).
 
 ### CANVAS
 
 Los canvas en JAVA son interpretados mediante una lista de listas de Strings (`List<List<String>>` - lista de Strings 2D, matriz dinámica) para simular las dos dimensiones de los Canvas, la impresión de una variable canvas consistirá en imprimir cada una de las listas de strings (las filas). Dado que no hay una librería que nos de un manejo tan adecuado para las operaciones como `Integer` o `Boolean` para los enteros y los booleanos, se implementó la clase `Utils` la cual almacena toda las posibles operaciones de los Canvas. 
 
-- En lineas generales, si se quiere hacer una concatenación, ya sea vertical o horizontal, se verifica que el tamaño de las matrices (la lista de listas de String) concuerden, el número de filas tiene que ser el mismo en el caso de la vertical y el número de columnas tiene que ser el mismo en el caso de la vertical.
-- Para la rotación se intercambian cada uno de los literales de cada uno del elemento i,j por sus equivalentes rotados y se crea una nueva lista que contenga estos elementos.
+- En lineas generales, si se quiere hacer una concatenación, ya sea vertical o horizontal, se verifica que el tamaño de las matrices (la lista de listas de String) concuerden, el número de filas tiene que ser el mismo en el caso de la concatenación horizontal y el número de columnas tiene que ser el mismo en el caso de la concatenación vertical.
+- Para la rotación se intercambian cada uno de los literales de cada uno del elemento i,j por sus equivalentes rotados y se crea una nueva lista que contenga estos elementos. Luego, iteramos por cada columna (yendo de la primera columna a la última columna) de esta nueva lista y dentro de esta iteración, copiamos cada elemento de una fila en orden reverso (es decir, yendo primero a la última fila hasta llegar a la primera fila) en una nueva lista.
 - En el caso de la transposición, se recorre cada elemento i,j de la matriz y se envia a la posición j,i de una nueva matriz, luego se retorna dicha matriz.
 - Las comparaciones entre dos canvas 1 y 2 son determinadas por las matrices que los representan. Dos elementos de tipo canvas son iguales si y solo si para todo elemento i,j de la matriz 1 es igual al elemento i,j de la matriz 2. 
 
 ### ITERACION INDETERMINADA
 
-Se interpreta como un ciclo while de Java, en donde en cada iteración se interpreta el cuerpo de instrucciones y la guardia.
+Se interpreta como un ciclo while de Java, en donde en cada iteración se interpreta el cuerpo de instrucciones y la guardia. Observemos que se interpreta la guardia dentro del ciclo while ya que puede que el valor de la guardia cambie dentro de la iteración indeterminada.
 
 ### ITERACION DETERMINADA
 
@@ -82,7 +82,7 @@ Intepreta el valor de la expresión a asignar para luego almacenar dicho valor e
 
 ### PRINT
 
-Se interpreta como la instrucción `System.out.println` de Java, imprimiendo el valor de la expresión.
+Se interpreta como la instrucción `System.out.println` de Java, imprimiendo el valor de la expresión. En el caso de imprimir una expresión de tipo Canvas, se tiene en Utils una función para imprimirla, el cual recorre cada elemento por fila y por columna, y va imprimiendo una por una.
 
 ### READ
 
