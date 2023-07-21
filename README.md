@@ -23,7 +23,7 @@ make
 ./Asgard <programa>
 ```
 
-donde <programa> en la ruta de un programa escrito en Asgard, se puede probar con la ruta programa.asg. Ademas se cuenta con los programas pedido que estan en la carpeta programas.
+donde <programa> en la ruta de un programa escrito en Asgard, se puede probar con la ruta programa.asg. Ademas se cuenta con los programas pedido que estan en la carpeta programas. 
 
 - Si te aparece un error de que el permiso fue denegado, escribe en la consola:
   ```
@@ -49,7 +49,7 @@ Para volver a ejecutar el programa luego del borrado, necesitarás volver al pas
 
 Dado que el interpretador del lenguaje debe interpretar las instrucciones en el mismo orden que está en el árbol sintáctico abstracto se implementó un método
 `void Interpretar()` en la clase `ASTNode`, la cual propaga el interprete en forma de cascada, de tal manera que si una instrucción es de la forma `x := 3*2 + 1`,
-primero interprete 3*2 como la multiplicación de dos literales, dando como resultado 6, luego interpreta la suma entre ese valor y 1, dando como resultado 7. A continuación se especificará como se interpreta cada una de las instrucciones de ASGARD.
+primero interprete 3*2 como la multiplicación de dos literales, dando como resultado 6, luego interpreta la suma entre ese valor y 1, dando como resultado 7. Y finalmente, se interpreta la asignación de la variable x a 7. A continuación se especificará como se interpreta cada una de las instrucciones de ASGARD.
 ### ENTEROS Y BOOLEANOS
 Para el caso de los enteros y booleanos se accede al valor de la expresión mediante las clases `Integer` y `Boolean` para convertir los valores almacenados como `String` en enteros y booleanos, con lo metodos `parseInt` y `parseBoolean`, que puedan ser operados en Java. 
 - `Expresiones binarias (enteras y booleanas)`: Se llama al método Interpretar para que interprete el valor del lado izquierdo y derecho de la expresión, luego se verifica el tipo de operador y se operan los operandos convertido en `Integer` y `Boolean` respectivamente para calcular el valor de la expresión binaria.
