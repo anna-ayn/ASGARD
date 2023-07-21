@@ -45,52 +45,35 @@ donde programa.asg contiene el codigo Asgard. También puedes probar con el arch
 
 Para volver a ejecutar el programa luego del borrado, necesitarás volver al paso 1 y 2.
 
-## Tabla de Simbolos
+## Implementación del interprete
 
-La tabla de simbolos es una estructura de datos que se utiliza para almacenar los simbolos que se van encontrando en el codigo. En nuestro caso, la tabla de simbolos está implementada con la clase `SymbolTable` la cual contiene los siguientes atributos y métodos que serán explicados a continuación:
+Dado que el interpretador del lenguaje debe interpretar las instrucciones en el mismo orden que está en el árbol sintáctico abstracto se implementó un método
+`void Interpretar()` en la clase `ASTNode`, la cual propaga el interprete en forma de cascada, de tal manera que si una instrucción es de la forma `x := 3*2 + 1`,
+primero interprete 3*2 como la multiplicación de dos literales, dando como resultado 6, luego interpreta la suma entre ese valor y 1, dando como resultado 7. A continuación se especificará como se interpreta cada una de las instrucciones de ASGARD.
+### ENTEROS Y BOOLEANOS
+Para el caso de los enteros y booleanos se accede al valor de la expresión mediante las clases `Integer` y `Boolean` para convertir los valores almacenados como `String` en enteros y booleanos, con lo metodos `parseInt` y `parseBoolean`, que puedan ser operados en Java. 
+- `Expresiones binarias (enteras y booleanas)`: Se llama al método Interpretar para que interprete el valor del lado izquierdo y derecho de la expresión, luego se verifica el tipo de operador y se operan los operandos convertido en `Integer` y `Boolean` respectivamente para calcular el valor de la expresión binaria.
+- `Expresiones unarias (enteras y booleanas)`: Equivalentemente a las expresiones binarias, se interpreta el operando, se convierte dicho operando en un `Integer` o `Boolean` respectivamente para aplicar la negación respectiva (multiplicar por -1 o aplicar la negación unaria).
 
-### Atributos
+### CANVAS
 
-- `private HashMap<String, Identificador> table;` : Es un HashMap que contiene como llave el nombre del identificador y como valor un objeto de tipo `Identificador` que contiene la información de la variable.
-- `private SymbolTable parent;` : Es un objeto de tipo `SymbolTable` que representa la tabla de simbolos padre de la tabla de simbolos actual.
+Los canvas en JAVA son interpretados mediante una lista de listas de Strings (`List<List<String>>` - lista de Strings 2D, matriz dinámica) para simular las dos dimensiones de los Canvas, la impresión de una variable canvas consistirá en imprimir cada una de las listas de strings (las filas). Dado que no hay una librería que nos de un manejo tan adecuado para las operaciones como `Integer` o `Boolean` para los enteros y los booleanos, se implementó la clase `Utils` la cual almacena toda las posibles operaciones de los Canvas. 
 
-### Métodos
+- En lineas generales, si se quiere hacer una concatenación, ya sea vertical o horizontal, se verifica que el tamaño de las matrices (la lista de listas de String) concuerden, el número de filas tiene que ser el mismo en el caso de la vertical y el número de columnas tiene que ser el mismo en el caso de la vertical.
+- Para la rotación se intercambian cada uno de los literales de cada uno del elemento i,j por sus equivalentes rotados y se crea una nueva lista que contenga estos elementos.
+- En el caso de la transposición, se recorre cada elemento i,j de la matriz y se envia a la posición j,i de una nueva matriz, luego se retorna dicha matriz.
+- Las comparaciones entre dos canvas 1 y 2 son determinadas por las matrices que los representan. Dos elementos de tipo canvas son iguales si y solo si para todo elemento i,j de la matriz 1 es igual al elemento i,j de la matriz 2. 
 
-- `public SymbolTable(SymbolTable parent)` : Constructor de la clase `SymbolTable` que recibe como parámetro la tabla de simbolos padre.
-- `public void addParent(SymbolTable parent)` : Método que agrega la tabla de simbolos padre a la tabla de simbolos actual.
-- ` public void put(String key, Identificador value)` : Método que agrega un identificador a la tabla de simbolos actual.
-- `public Identificador get(String key)` : Método que retorna un identificador de la tabla de simbolos actual en caso de existir, si no revisa sus ancestros hasta encortrarlo, en caso de no existir en la tabla actual ni en sus ancestros retorna null.
-- `public boolean contains(String key)` : Método que retorna true si la tabla de simbolos actual contiene el identificador con el nombre key, en caso contrario retorna false.
-- `public void setType(String type)` : Método que asigna el tipo de dato a todos los identificadores de la tabla de simbolos actual que tengan tipo null.
+### ITERACION INDETERMINADA
 
-## Errores
+Se interpreta como un ciclo while de Java, en donde en cada iteración se interpreta el cuerpo de instrucciones y la guardia.
 
-A continuacion se muestran los errores de contexto que se pueden encontrar en el codigo Asgard y como fueron manejados cada uno de ellos.
+### ITERACION DETERMINADA
 
-### Identificador no declarado
+Se interpreta como un ciclo for de Java, en donde se evaluan los límites inferior y superior para asignar el número de iteraciones del ciclo. Al igual que en el ciclo indeterminado se interpreta en cada iteración el cuerpo de instrucciones.
 
-Este error se presenta cuando se intenta utilizar un identificador que no ha sido declarado previamente. Para manejar este error se utilizó la clase `SymbolTable` la cual contiene un HashMap que almacena los identificadores que se van encontrando en el codigo. Cuando se encuentra un identificador, se verifica si este se encuentra en la tabla de simbolos actual, si no se encuentra se verifica en la tabla de simbolos padre, si no se encuentra en la tabla de simbolos padre se verifica en la tabla de simbolos padre de la tabla de simbolos padre y asi sucesivamente hasta encontrarlo o llegar a la tabla de simbolos global. Si no se encuentra en la tabla de simbolos global, se muestra el error de identificador no declarado.
+### CONDICIONAL
 
-### Identificador ya declarado
+Se interpreta como una instruccion if, if-else respectivamente, se interpreta el valor de la guardia y se ejecutan el cuerpo de intrucciones interpretandolo.
 
-Este error se presenta cuando se intenta declarar un identificador que ya ha sido declarado previamente. Para manejar este error se utilizó la clase `SymbolTable` la cual contiene un HashMap que almacena los identificadores que se van encontrando en el codigo. Cuando se encuentra un identificador, se verifica si este se encuentra en la tabla de simbolos actual, si se encuentra se muestra el error de identificador ya declarado.
-
-### Errores de tipo
-
-Este error se presenta cuando no hay concordancia en las operaciones que se desean realizar, como por ejemplo sumar un entero con un booleano. Para manejar este error se consideró agregar un nuevo atributo a la clase `Expression`, de la cual heredan todos los tipos de expresiones, que es el tipo de dato de la expresión. Luego, si una expresion es binaria o unaria se usan reglas de inferencia para inferir el tipo de dato de la expresión, teniendo como caso base el tipo de los literales y de los identificadores. Entonces, cuando se realiza una operación, se verifica si los tipos de datos de las expresiones involucradas en la operación son compatibles, si no son compatibles el tipo de la expresión se vuelve `errorType` para luego mostrarse el error de tipo.
-
-### Asignación de tipo incorrecto
-
-Este error se presenta cuando se intenta asignar un valor a un identificador que no es del mismo tipo. Para manejar este error se verifica si el identificador se encuentra en la tabla de simbolos actual, si se encuentra se verifica si el tipo de dato del identificador es igual al tipo de dato de la expresión que se le quiere asignar, si no son iguales se muestra el error de asignación de tipo incorrecto.
-
-### Modificación del valor de una variable que haya sido asociada a una repetición determinada
-
-Para manejar este error se incluyó un nuevo atributo a la clase `Identificador` y es un valor booleano `repeat_det` que indica si el identificador ha sido asociado a una repetición determinada. Luego, cuando se declara un identificador en una repetición deterterminada se setea este valor a true, de forma que cuando se intente modificar el valor de un identificador que haya sido asociado a una repetición determinada se muestra el error.
-
-## Otras consideraciones
-
-- Los errores de contexto incluyen el número de fila y columna en el que se encuentran y el tipo de error.
-- En caso de no haber errores de contexto, se imprime el AST del programa.
-- Para la impresión de los errores se utilizó una PriorityQueue que ordena los errores por el número de línea en el que se encuentran. En caso de existir más de un error en una misma línea, no se mantiene el orden por columna, esto debido a que
-  puede ocurrir el siguiente caso: `x := true / 10`, acá se muestra primero el error de tipo y debido al error de tipo es que ocurre un error de asignación en la variable x y se muestra dicho error.
-- Se incluyeron dos archivos de prueba, `programa.asg` y `programaConErrores.asg`, el primero es un programa correcto y el segundo es un programa con errores de contexto.
+###
