@@ -20,10 +20,10 @@ make
 2. Seguidamente
 
 ```
-./Asgard programa.asg
+./Asgard <programa>
 ```
 
-donde programa.asg contiene el codigo Asgard. Ademas se cuenta con los programas pedido que estan en la carpeta programas.
+donde <programa> en la ruta de un programa escrito en Asgard, se puede probar con la ruta programa.asg. Ademas se cuenta con los programas pedido que estan en la carpeta programas.
 
 - Si te aparece un error de que el permiso fue denegado, escribe en la consola:
   ```
@@ -32,7 +32,7 @@ donde programa.asg contiene el codigo Asgard. Ademas se cuenta con los programas
 - Al elevar los permisos del archivos, introduce nuevamente en tu consola
 
   ```
-  ./Asgard programa.asg
+  ./Asgard <programa>
   ```
 
 3. **(Opcional)** Si quieres borrar todos los archivos que has compilado, puedes escribir en la consola
