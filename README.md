@@ -1,4 +1,4 @@
-# CONTEXT ANALIZER -ASGARD
+# INTERPRETER -ASGARD
 
 ### Ana Shek - 1910096
 
@@ -20,19 +20,19 @@ make
 2. Seguidamente
 
 ```
-./ContAsgard < programa.asg
+./Asgard programa.asg
 ```
 
-donde programa.asg contiene el codigo Asgard. También puedes probar con el archivo programaConErrores.asg que contiene otro código de Asgard pero con varios errores de contexto.
+donde programa.asg contiene el codigo Asgard. Ademas se cuenta con los programas pedido que estan en la carpeta programas.
 
 - Si te aparece un error de que el permiso fue denegado, escribe en la consola:
   ```
-  sudo chmod +x ContAsgard
+  sudo chmod +x Asgard
   ```
 - Al elevar los permisos del archivos, introduce nuevamente en tu consola
 
   ```
-  ./ContAsgard < programa.asg
+  ./Asgard programa.asg
   ```
 
 3. **(Opcional)** Si quieres borrar todos los archivos que has compilado, puedes escribir en la consola
@@ -87,3 +87,22 @@ Se interpreta como la instrucción `System.out.println` de Java, imprimiendo el 
 ### READ
 
 Lee el buffer `new BufferedReader(new InputStreamReader(System.in))` para luego obtener la linea pasada por el usuario, verifica el tipo de dato obtenido de concordar con la variable se asigna el valor.
+
+## PROGRAMAS PEDIDOS
+
+### fibonacci.asg
+
+Programa que lee por la entrada estándar un número entero no–negativo n e imprime,
+a la salida estándar, el n– ésimo elemento de la secuencia de Fibonacci.
+
+### square.asg
+
+Programa que lee un entero n ≥ 3 de la entrada estandar e imprime, a la salida estandar,
+un cuadrado donde cada lado tenga n caracteres de largo.
+
+### arte-ascii.asg
+
+Programa que lee un entero no–negativo n de la entrada estandar e imprima, a la salida
+estandar, una representación en arte ascii de ese número, donde cada dígito tiene
+3 caracteres de ancho y 5 de alto (con una columna de 1 caracter de ancho entre cada
+dígito).

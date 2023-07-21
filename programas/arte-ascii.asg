@@ -1,0 +1,230 @@
+using n, digit of type integer; ascii, space of type canvas; flag of type boolean begin
+  {- Leemos el input (el numero) -}
+  read n;
+  {- Inicializamos un flag que nos
+  sirve para saber si la unidad del numero es 0 e imprimirlo -}
+  flag := true;
+  {- ascii sera la variable que contendra el canvas a imprimir -}
+  ascii := <empty>;
+  {- inicializamos el espaciado que debe hacer entre cada digito -}
+  space := <empty>;
+  from 1 to 5 repeat
+    space := space | <.>
+  done;
+  {-iteramos por cada digito y lo convertimos a canvas, luego lo guardamos en ascii-}
+  while n > 0 \/ flag repeat
+    {- Obtenemos cada uno de los digitos -}
+    digit := n % 10;
+    n := n / 10;
+    {-en caso que el numero sea 0 a la siguiente iteracion sale del ciclo-}
+    if n = 0 then
+        flag := false
+    done;
+    {- Se usa digitCanvas para ir creando cada uno de los digitos en forma de canvas -}
+    {- consideramos cada uno de los 10 casos de digitos -}
+    using digitCanvas, temp of type canvas begin
+        if digit = 0 then
+            digitCanvas := </>;
+            digitCanvas := digitCanvas : <_>;
+            digitCanvas := digitCanvas : <\>;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            from 1 to 3 repeat
+                digitCanvas := digitCanvas | temp
+            done;
+            temp := <\>;
+            temp := temp : <_>;
+            temp := temp : </>;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 1 then
+            digitCanvas := </>;
+            digitCanvas := digitCanvas : <|>;
+            digitCanvas := digitCanvas : <.>;
+            temp := <.>;
+            temp := temp : <|>;
+            temp := temp : <.>;
+            from 1 to 3 repeat
+                digitCanvas := digitCanvas | temp
+            done;
+            temp := <_>;
+            from 1 to 2 repeat
+                temp := temp : <_>
+            done;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 2 then
+            digitCanvas := </>;
+            digitCanvas := digitCanvas : <_>;
+            digitCanvas := digitCanvas : <\>;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : </>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp;
+            temp := </>;
+            from 1 to 2 repeat
+                temp := temp : <.>
+            done;
+            digitCanvas := digitCanvas | temp;
+            temp := <_>;
+            from 1 to 2 repeat
+                temp := temp : <_>
+            done;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 3 then
+            digitCanvas := <_>;
+            digitCanvas := digitCanvas : <_>;
+            digitCanvas := digitCanvas : <.>;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : <\>;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : <_>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : </>;
+            digitCanvas := digitCanvas | temp;
+            temp := <_>;
+            temp := temp : <_>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 4 then
+            digitCanvas := <|>;
+            digitCanvas := digitCanvas : <.>;
+            digitCanvas := digitCanvas : <|>;
+            digitCanvas := digitCanvas | digitCanvas;
+            temp := <_>;
+            from 1 to 2 repeat
+                temp := temp : <_>
+            done;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            from 1 to 2 repeat
+                digitCanvas := digitCanvas | temp
+            done
+        done;
+        if digit = 5 then
+            digitCanvas := <_>;
+            from 1 to 2 repeat
+                digitCanvas := digitCanvas : <_>
+            done;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp;
+            temp := <_>;
+            temp := temp : <_>;
+            temp := temp : <\>;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            digitCanvas := digitCanvas | temp;
+            temp := <_>;
+            temp := temp : <_>;
+            temp := temp : </>;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 6 then
+            digitCanvas := </>;
+            digitCanvas := digitCanvas : <_>;
+            digitCanvas := digitCanvas : <\>;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp;
+            temp := <_>;
+            temp := temp : <_>;
+            temp := temp : <\>;
+            digitCanvas := digitCanvas | temp;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            digitCanvas := digitCanvas | temp;
+            temp := <\>;
+            temp := temp : <_>;
+            temp := temp : </>;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 7 then
+            digitCanvas := <_>;
+            from 1 to 2 repeat
+                digitCanvas := digitCanvas : <_>
+            done;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : </>;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : <|>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : </>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp;
+            temp := </>;
+            temp := temp : <.>;
+            temp := temp : <.>;
+            digitCanvas := digitCanvas | temp           done;
+        if digit = 8 then
+            digitCanvas := </>;
+            digitCanvas := digitCanvas : <_>;
+            digitCanvas := digitCanvas : <\>;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            digitCanvas := digitCanvas | temp;
+            temp := <_>;
+            from 1 to 2 repeat
+                temp := temp : <_>
+            done;
+            digitCanvas := digitCanvas | temp;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            digitCanvas := digitCanvas | temp;
+            temp := <\>;
+            temp := temp : <_>;
+            temp := temp : </>;
+            digitCanvas := digitCanvas | temp
+        done;
+        if digit = 9 then
+            digitCanvas := </>;
+            digitCanvas := digitCanvas : <_>;
+            digitCanvas := digitCanvas : <\>;
+            temp := <|>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            digitCanvas := digitCanvas | temp;
+            temp := <\>;
+            from 1 to 2 repeat
+                temp := temp : <_>
+            done;
+            digitCanvas := digitCanvas | temp;
+            temp := <.>;
+            temp := temp : <.>;
+            temp := temp : <|>;
+            from 1 to 2 repeat
+                digitCanvas := digitCanvas | temp
+            done
+        done;
+        ascii := digitCanvas : ascii;
+        ascii := space : ascii
+    end
+  done;
+  {-imprimimos el numero de ascii-}
+  print ascii
+end
