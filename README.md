@@ -76,4 +76,14 @@ Se interpreta como un ciclo for de Java, en donde se evaluan los límites inferi
 
 Se interpreta como una instruccion if, if-else respectivamente, se interpreta el valor de la guardia y se ejecutan el cuerpo de intrucciones interpretandolo.
 
-###
+### ASIGNACION
+
+Intepreta el valor de la expresión a asignar para luego almacenar dicho valor en el atributo `value` de los idenficadores, en caso de ser un booleano o un entero, o en el atributo Lienzo en caso de ser una expresion de tipo Canvas.
+
+### PRINT
+
+Se interpreta como la instrucción `System.out.println` de Java, imprimiendo el valor de la expresión.
+
+### READ
+
+Lee el buffer `new BufferedReader(new InputStreamReader(System.in))` para luego obtener la linea pasada por el usuario, verifica el tipo de dato obtenido de concordar con la variable se asigna el valor.

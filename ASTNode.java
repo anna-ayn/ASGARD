@@ -13,6 +13,8 @@ abstract class ASTNode {
         this.child = child;
     }
 
+    /* Funcion que interpreta el valor de cada uno de los nodos en AST
+    * */
     protected void Interpretar() {
         if (this.getChild() != null) {
             this.getChild().Interpretar();
@@ -115,6 +117,7 @@ class Identificador extends Expression {
     }
 
     public void Interpretar() {
+        /*Se interpreta el identificador verificando si fue inicializado o no*/
         if ((getTipo() != "canvas" && getValor() == null) || (getLienzo() == null)) {
             System.out.println("La variable '" + this.identificador + "' aun no ha sido inicializada.");
             System.exit(0);
@@ -161,10 +164,13 @@ class ExpresionAritmeticaBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
+        /* Se interpreta cada operando (izquierdo y derecho) */
         left.Interpretar();
         right.Interpretar();
+        /* Se obtiene su valor entero */
         int op1 = Integer.parseInt(left.getValor());
         int op2 = Integer.parseInt(right.getValor());
+        /*Se realiza la operacion en Java y luego se asigna el valor al atributo valor*/
         switch (this.operador) {
             case "Suma":
                 this.valor = Integer.toString(op1 + op2);
@@ -209,7 +215,9 @@ class ExpresionAritmeticaUna extends OperacionUnaria {
     }
 
     public void Interpretar() {
+        /*Se interpreta el operando*/
         operando.Interpretar();
+        /*Se multiplica por -1 el valor interpretado para obtener el valor esperado */
         this.valor = Integer.toString(-1 * Integer.parseInt(operando.getValor()));
     }
 
@@ -231,10 +239,13 @@ class ExpresionBooleanaBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
+        /* Se interpreta cada operando (izquierdo y derecho) */
         left.Interpretar();
         right.Interpretar();
+        /*Se obtienen los valores booleanos de los operandos*/
         boolean op1 = Boolean.parseBoolean(left.getValor());
         boolean op2 = Boolean.parseBoolean(right.getValor());
+        /*Se realiza la operacion correspondiente en Java*/
         switch (this.operador) {
             case "Conjuncion":
                 this.valor = String.valueOf(op1 && op2);
@@ -266,6 +277,7 @@ class ExpresionBooleanaUna extends OperacionUnaria {
     }
 
     public void Interpretar() {
+        /*Se interpreta el operador y se realiza la negacion en Java*/
         operando.Interpretar();
         this.valor = String.valueOf(!Boolean.parseBoolean(operando.getValor()));
     }
@@ -300,9 +312,12 @@ class ExpresionRelacional extends OperacionBinaria {
     }
 
     public void Interpretar() {
+        /* Se interpreta cada operando (izquierdo y derecho) */
         left.Interpretar();
         right.Interpretar();
+        /*Se verifica de que tipo es la expresion*/
         if (left.getTipo() == "integer") {
+            /*Se realiza la operacion relacional en Java*/
             int op1 = Integer.parseInt(left.getValor());
             int op2 = Integer.parseInt(right.getValor());
             switch (this.operador) {
@@ -328,6 +343,7 @@ class ExpresionRelacional extends OperacionBinaria {
                     break;
             }
         } else if (left.getTipo() == "boolean") {
+            /*En caso de ser booleano solo puede compararse con = o \= */
             boolean op1 = Boolean.parseBoolean(left.getValor());
             boolean op2 = Boolean.parseBoolean(right.getValor());
             switch (this.operador) {
@@ -342,6 +358,7 @@ class ExpresionRelacional extends OperacionBinaria {
             }
         } else {
             // canvas
+            /* Se utilizan los metodos de la clase utils para realizar las comparaciones */
             switch (this.operador) {
                 case "Igual":
                     this.valor = utils.compararCanvas(this.left.getLienzo(), this.right.getLienzo()) ? "true"
@@ -377,14 +394,18 @@ class ExpresionCanvasBin extends OperacionBinaria {
     }
 
     public void Interpretar() {
+        /* Se interpreta cada operando (izquierdo y derecho) */
         left.Interpretar();
         right.Interpretar();
 
+        /*Si el canvas de uno de los operando es vacio el resultado de interpretar es el otro canvas*/
         if (left.getLienzo().get(0).get(0).equals("<empty>")) {
             this.lienzo = right.getLienzo();
         } else if (right.getLienzo().get(0).get(0).equals("<empty>")) {
             this.lienzo = left.getLienzo();
         } else {
+            /* Se verifica el tipo de operacion y se utiliza los metodos de utils para obtener la interpretacion
+            * correspondiente a realizar la operacion */
             switch (this.operador) {
                 case "Concatenacion Horizontal":
                     if (left.getLienzo().size() == right.getLienzo().size()) {
@@ -429,7 +450,9 @@ class ExpresionCanvasUna extends OperacionUnaria {
     }
 
     public void Interpretar() {
+        /*Se interpreta el operando */
         operando.Interpretar();
+        /*Se realiza la operacion correspondiente con los metodos de Utils */
         switch (this.operador) {
             case "Trasposicion":
                 this.lienzo = utils.returnTranspose(operando.getLienzo());
@@ -515,6 +538,8 @@ class Asignacion extends ASTNode {
     }
 
     public void Interpretar() {
+        /*Se asigna el valor del identificador al atributo value en caso de ser un entero o booleano
+        * o a Lienzo en caso de ser un Canvas */
         expression.Interpretar();
         this.identificador.setValor(expression.getValor());
         if (identificador.getTipo() == "canvas") {
@@ -555,6 +580,7 @@ class Condicional extends ASTNode {
     }
 
     public void Interpretar() {
+        /*Se interpreta como un condicional if, if-else*/
         guardia.Interpretar();
         if (guardia.getValor().equals("true")) {
             ifBody.Interpretar();
@@ -586,6 +612,7 @@ class IteracionIndet extends ASTNode {
     }
 
     public void Interpretar() {
+        /*Se interpreta como un ciclo while*/
         guardia.Interpretar();
 
         while (guardia.getValor() == "true") {
@@ -624,6 +651,7 @@ class IteracionDet extends ASTNode {
     }
 
     public void Interpretar() {
+        /*Interpretamos como un ciclo for en donde los limites representan el rango de la variable*/
         inicio.Interpretar();
         fin.Interpretar();
 
@@ -669,10 +697,11 @@ class Read extends ASTNode {
     }
 
     public void Interpretar() {
-
+        /*Leemos la entrada pasada por el usuario*/
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         String str;
         try {
+            /*Verificamos el tipo de entrada que recibimos y si concuerda con el identificador */
             str = reader.readLine();
             if (identificador.getTipo() == "boolean" && (str == "true" || str == "false")) {
                 this.identificador.setValor(str);
@@ -710,6 +739,7 @@ class Print extends ASTNode {
     }
 
     public void Interpretar() {
+        /*Imprimimos el pantalla el valor de la expresion */
         if (expression.getValor() == null) {
             expression.Interpretar();
         }
