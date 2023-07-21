@@ -76,6 +76,7 @@ terminal TkRead, TkPrint;
 terminal TkTrue, TkFalse;
 terminal TkIdent;
 terminal TkEmpty;
+terminal TkComment;
 terminal TkError;
 
 /* No terminales */
@@ -146,6 +147,7 @@ secuenciacion ::= instruccion:a {: RESULT = errors_queue.isEmpty() ? new Instruc
         RESULT = errors_queue.isEmpty() ?  new Instruccion((ASTNode) a, (ASTNode) b) : new Undefined(); :};
 
 instruccion ::= TkEmpty:a TkPuntoYComa {:syntax_error(aleft, aright);:}
+        | TkComment:a TkPuntoYComa {:syntax_error(aleft, aright);:}
         | alcance:a {:RESULT = errors_queue.isEmpty() ? (ASTNode) a : new Undefined(); :}
         | IteracionDet:a {:RESULT = errors_queue.isEmpty() ? (IteracionDet) a : new Undefined(); :}
         | IteracionIndet:a {:RESULT = errors_queue.isEmpty() ? (IteracionIndet) a : new Undefined(); :}

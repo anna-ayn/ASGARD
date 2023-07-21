@@ -35,7 +35,7 @@ canvaslit = "<empty>"|"</>"|"<\\>"|"<|>"|"<_>"|"<.>"
 // Cada regla está formada por una {expresión} espacio {código}
 // Los espacios y comentarios se ignoran
 {spaces} {new Symbol(sym.TkEmpty, yyline, yycolumn);}
-{comment} {/*Ignore*/}
+{comment} {new Symbol(sym.TkComment, yyline, yycolumn);}
 
 /* Los identificadores de variables estan formados por una letra seguida de digitos o letras,
 no obstante, no pueden ser antecedidos por literales numericos ni de tipo lienzo (ni seguidos en caso de los literales de tipo lienzo)*/

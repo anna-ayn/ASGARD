@@ -1,12 +1,4 @@
 using x, y of type integer; r, c, s, t of type canvas begin
-  x := 1 ;
-  y := 15  ;
-  c := <empty> ;
-  r := <|>;
-  {- This is a comment -}
- from x to 5 repeat
-    r := r : </>;
-    print r
-  done;
-  print true
+  x:= 1;{- aldklasd -} ;
+  print y
 end
